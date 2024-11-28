@@ -1,0 +1,974 @@
+<html>
+
+<head>
+  <base href="/" />
+  <title>What works for you?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      font-size: 12Apx;
+    }
+
+    #top-section {
+      min-height: 100vh;
+      border-bottom: 2px solid #ccc;
+      margin-bottom: 20px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 32px;
+      text-align: left;
+      margin-top: 8vh;
+      padding: 0px 50px;
+      font-weight: 300;
+    }
+
+    .subheader-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 24px;
+      text-align: left;
+      padding: 20px 50px;
+      font-weight: 300;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #condition-select {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      padding: 5px 15px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      min-width: 300px;
+    }
+
+    #condition-report-count {
+      display: inline-block;
+      margin-left: 50px;
+      font-size: 14px;
+      color: #666;
+      font-weight: 300;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .accordion {
+      width: 90%;
+      margin: 20px auto;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .accordion-item {
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      background: #f8f8f8;
+      padding: 15px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #434343;
+      padding-top: 16px;
+      /* Added to shift content down */
+      padding-bottom: 12px;
+      /* Added to maintain vertical centering */
+    }
+
+    .accordion-header span:first-child {
+      font-size: 20px;
+      /* Updated to match score size */
+      font-weight: 600;
+    }
+
+    .accordion-header:hover {
+      background: #f0f0f0;
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      background: white;
+      padding: 0 15px;
+    }
+
+    .accordion-content.active {
+      max-height: 400px;
+      padding: 15px;
+      padding-bottom: 30px;
+      /* Increased bottom padding */
+    }
+
+    .product-details-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    td:first-child,
+    th:first-child {
+      max-width: 50px;
+      width: 50px;
+    }
+
+    th {
+      background: #f0f0f0;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    #loading {
+      padding: 10px;
+      font-style: italic;
+      color: #666;
+    }
+
+    #data-section {
+      padding: 20px;
+      display: none;
+    }
+
+    .split-container {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      padding-bottom: 15px;
+    }
+
+    .split-cell {
+      flex: 1;
+      padding: 15px;
+      min-height: 350px;
+      background: white;
+    }
+
+    .split-cell-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: 24px;
+      color: #434343;
+      margin-bottom: 20px;
+      margin-top: 10px;
+    }
+
+    .effects-content,
+    .effectiveness-content {
+      min-height: 300px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 0;
+      margin-top: -10px;
+      height: 300px;
+      width: 100%;
+      position: relative;
+    }
+
+    canvas {
+      max-width: 100% !important;
+      height: 100% !important;
+      width: 100% !important;
+    }
+
+    #product-accordion {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="top-section">
+    <h1 class="header-text">
+      Crowd sourcing answers. Which of the medical cannabis options available in New Zealand work best for your
+      condition?
+      <span style="font-size: 24px">-   Currently displaying completely random data</span>
+    </h1>
+    <div class="subheader-text">
+      What works for your
+      <select id="condition-select">
+      <option value="">Select condition...</option>
+    </select>
+      <div id="condition-report-count"></div>
+    </div>
+    <div class="accordion" id="product-accordion">
+      <!-- Accordion will be populated dynamically -->
+    </div>
+  </div>
+
+  <div id="data-section">
+    <div id="spreadsheet1"></div>
+    <div id="spreadsheet2"></div>
+    <div id="spreadsheet3"></div>
+  </div>
+
+  <div id="loading">Loading data...</div>
+
+  <script>
+    async function fetchSpreadsheetData(url) {
+  try {
+    console.log('Fetching data from:', url);
+    const cacheBuster = `&timestamp=${new Date().getTime()}`;
+    const response = await fetch(url + cacheBuster, {
+      cache: 'no-store',
+      headers: {
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const html = await response.text();
+    console.log('Received HTML response length:', html.length);
+    
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    const title = doc.querySelector('title')?.textContent || '';
+    const table = doc.querySelector('table');
+    
+    if (!table) {
+      console.error('No table found in response HTML');
+      throw new Error('No table found in spreadsheet data');
+    }
+
+    const rows = table.querySelectorAll('tr');
+    console.log('Found rows:', rows.length);
+    
+    if (!rows || rows.length === 0) {
+      console.error('No rows found in table');
+      return {
+        title: 'Nothing Found',
+        tableHtml: '<p>Nothing found</p>',
+        table: null
+      };
+    }
+
+    const headerRow = rows[0];
+    if (headerRow) {
+      const cells = headerRow.querySelectorAll('td');
+      cells.forEach(cell => {
+        const content = cell.innerHTML;
+        const th = document.createElement('th');
+        th.innerHTML = content;
+        cell.replaceWith(th);
+      });
+    }
+    
+    Array.from(rows).forEach((row, index) => {
+      if (index === 0) return; 
+      const firstCell = row.querySelector('td');
+      if (!firstCell || firstCell.textContent.trim() === '') {
+        row.remove();
+      }
+    });
+
+    return { title, tableHtml: table.outerHTML, table };
+  } catch (error) {
+    console.error('Error fetching spreadsheet:', error);
+    return { 
+      title: 'Error',
+      tableHtml: `<p class="error">Error loading spreadsheet data: ${error.message}</p>`,
+      table: null
+    };
+  }
+}
+
+const spreadsheet1URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTww6fpAXf2v9iAoHDaMmlT44fgIggpFPAKubK9xRsDQfpdnquC3JYt2sL54Mn6Bgl-ld3jjQR7QIXP/pubhtml?gid=0&single=true';
+const spreadsheet2URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDPYraFDktD7EtJ7T06_FGu4fszOWQ0cA0Yr0DsP3B6N9WYRofdReaZKurPsWEMW1-kelb9RTGGgps/pubhtml?gid=0&single=true';
+const spreadsheet3URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDPYraFDktD7EtJ7T06_FGu4fszOWQ0cA0Yr0DsP3B6N9WYRofdReaZKurPsWEMW1-kelb9RTGGgps/pubhtml?gid=1303283638&single=true';
+
+function getDominanceColor(dominance) {
+  const normalizedDominance = dominance.toLowerCase().trim();
+  switch (normalizedDominance) {
+    case 'sativa dominant': return '#ffea8a';
+    case 'indica dominant': return '#9be7f5';
+    case 'balanced hybrid': return '#bee8a6';
+    case 'unknown': return '#d1e6cb';
+    default: return '#EAEAEA';
+  }
+}
+
+function getProductScore(productName, condition, spreadsheet3Table) {
+  if (!condition || !spreadsheet3Table) return { score: 0, reports: 0 };
+
+  const rows = spreadsheet3Table.querySelectorAll('tr');
+  if (rows.length < 2) return { score: 0, reports: 0 };
+  
+  const productNameRow = rows[1];  
+  const productCells = productNameRow.querySelectorAll('td');
+  let productColumnIndex = -1;
+
+  for (let i = 0; i < productCells.length; i++) {
+    if (productCells[i].textContent.trim().toLowerCase() === productName.trim().toLowerCase()) {
+      productColumnIndex = i;
+      break;
+    }
+  }
+
+  if (productColumnIndex === -1) {
+    console.log(`Product not found: ${productName}`);
+    return { score: 0, reports: 0 };
+  }
+
+  const reportsRow = rows[1];  
+  const reports = reportsRow && productColumnIndex < reportsRow.querySelectorAll('td').length ? 
+    parseInt(reportsRow.querySelectorAll('td')[productColumnIndex].textContent.trim()) || 0 : 0;
+
+  for (let i = 2; i < rows.length; i++) {
+    const cells = rows[i].querySelectorAll('td');
+    if (cells.length > 1) {
+      const conditionText = cells[0].textContent.trim().toLowerCase();
+      const scoreText = cells[1].textContent.trim().toLowerCase();
+      
+      if (conditionText === condition.trim().toLowerCase() && scoreText === "score") {
+        const score = parseFloat(cells[productColumnIndex].textContent.trim()) || 0;
+        console.log(`Found Score for ${productName} under ${condition}:`, score);
+        return { score, reports };
+      }
+    }
+  }
+
+  console.log(`No score found for ${productName} under ${condition}`);
+  return { score: 0, reports };
+}
+
+function getUndesiredEffects(productName, spreadsheet3Table) {
+  if (!spreadsheet3Table) return [];
+  
+  const rows = spreadsheet3Table.querySelectorAll('tr');
+  if (rows.length < 2) return [];
+  
+  const productNameRow = rows[1];
+  const productCells = productNameRow.querySelectorAll('td');
+  let productColumnIndex = -1;
+
+  for (let i = 0; i < productCells.length; i++) {
+    if (productCells[i].textContent.trim().toLowerCase() === productName.trim().toLowerCase()) {
+      productColumnIndex = i;
+      break;
+    }
+  }
+
+  if (productColumnIndex === -1) return [];
+
+  const effects = [];
+  let hasAcceptableSideEffects = false;
+  
+  for (let i = 2; i < rows.length; i++) {
+    const cells = rows[i].querySelectorAll('td');
+    if (cells.length > 1) {
+      const rowType = cells[0].textContent.trim().toLowerCase();
+      if (rowType === "undesired effects") {
+        const effectName = cells[1].textContent.trim();
+        const value = parseFloat(cells[productColumnIndex].textContent.trim()) || 0;
+        
+        if (effectName === "Only acceptable side effects") {
+          hasAcceptableSideEffects = true;
+        }
+        
+        if (value > 0) {
+          effects.push({ name: effectName, value: value });
+        }
+      }
+    }
+  }
+
+  if (!hasAcceptableSideEffects) {
+    effects.unshift({ name: "Only acceptable side effects", value: 0 });
+  }
+
+  return effects;
+}
+
+function getEffectivenessData(productName, condition, spreadsheet3Table) {
+  if (!spreadsheet3Table || !condition) return { effectiveness: [], totalReports: 0 };
+  
+  const rows = spreadsheet3Table.querySelectorAll('tr');
+  if (rows.length < 2) return { effectiveness: [], totalReports: 0 };
+  
+  const productNameRow = rows[1];
+  const productCells = productNameRow.querySelectorAll('td');
+  let productColumnIndex = -1;
+
+  for (let i = 0; i < productCells.length; i++) {
+    if (productCells[i].textContent.trim().toLowerCase() === productName.trim().toLowerCase()) {
+      productColumnIndex = i;
+      break;
+    }
+  }
+
+  if (productColumnIndex === -1) return { effectiveness: [], totalReports: 0 };
+
+  const effectiveness = [];
+  const effectTypes = [
+    "Not effective",
+    "Mild benefit",
+    "Good benefit", 
+    "This is exactly what I need"
+  ];
+  
+  for (let i = 2; i < rows.length; i++) {
+    const cells = rows[i].querySelectorAll('td');
+    if (cells.length > 1) {
+      const rowCondition = cells[0].textContent.trim();
+      const effectType = cells[1].textContent.trim();
+      
+      if (rowCondition.toLowerCase() === condition.toLowerCase() && 
+          effectTypes.includes(effectType)) {
+        const value = parseFloat(cells[productColumnIndex].textContent.trim()) || 0;
+        if (value > 0) {
+          effectiveness.push({ name: effectType, value: value });
+        }
+      }
+    }
+  }
+
+  const totalReports = effectiveness.reduce((sum, item) => sum + item.value, 0);
+  
+  return {
+    effectiveness: effectiveness,
+    totalReports: totalReports
+  };
+}
+
+function createDataList(data, limit = null, isEffectiveness = false) {
+  if (isEffectiveness) {
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%';
+    canvas.style.height = '300px';
+
+    const effectTypes = [
+      "Exactly what I need",
+      "Good benefit",
+      "Mild benefit",
+      "Not effective"
+    ];
+
+    const chartData = effectTypes.map(type => {
+      const found = data.find(item => 
+        (type === "Exactly what I need" && item.name === "This is exactly what I need") || 
+        item.name === type
+      );
+      return found ? found.value : 0;
+    });
+
+    const total = chartData.reduce((a, b) => a + b, 0);
+    const percentages = chartData.map(value => total > 0 ? (value / total) * 100 : 0);
+
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: effectTypes.map(label => label.split(' ').join('\n')),
+        datasets: [{
+          data: percentages,
+          backgroundColor: [
+            '#8cd82d',
+            '#c6eb96',
+            '#e3f5cc',
+            '#b8b8b8'
+          ],
+          barThickness: 80, 
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            enabled: false
+          },
+          afterDraw: {
+            id: 'customAfterDraw',
+            afterDraw: function(chart) {
+              const ctx = chart.ctx;
+              ctx.save();
+              const datasets = chart.data.datasets;
+              const meta = chart.getDatasetMeta(0);
+              
+              meta.data.forEach((bar, index) => {
+                const value = datasets[0].data[index];
+                if (value > 0) {
+                  const { x, y } = bar.getCenterPoint();
+                  ctx.fillStyle = 'black';  
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'bottom';
+                  ctx.font = '12px Arial';
+                  ctx.fillText(`${value.toFixed(1)}%`, x, y - 5);
+                }
+              });
+              ctx.restore();
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false,
+              drawBorder: false
+            },
+            border: {
+              display: false
+            }
+          },
+          y: {
+            display: false,
+            max: 50 
+          }
+        },
+        layout: {
+          padding: {
+            left: 10,
+            right: 10,
+            top: 10,
+            bottom: 10
+          }
+        }
+      }
+    });
+    
+    return canvas;
+  } else {
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%';
+    canvas.style.height = '300px';
+    
+    let sortedData = data.map(item => ({
+      name: item.name,
+      value: item.value
+    }));
+
+    const acceptableIndex = sortedData.findIndex(item => item.name === "Only acceptable side effects");
+    const acceptableItem = acceptableIndex !== -1 ? sortedData.splice(acceptableIndex, 1)[0] : null;
+
+    sortedData = sortedData.sort((a, b) => b.value - a.value);
+    sortedData = sortedData.slice(0, 9);
+
+    if (acceptableItem) {
+      sortedData.unshift(acceptableItem);
+    }
+
+    const total = sortedData.reduce((sum, item) => sum + item.value, 0);
+    const percentages = sortedData.map(item => (item.value / total) * 100);
+
+    const pieChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          onClick: null, 
+          labels: {
+            font: {
+              size: 11
+            },
+            padding: 10,
+            boxWidth: Math.min(window.innerWidth * 0.05, 30),
+            generateLabels: function(chart) {
+              const data = chart.data;
+              if (data.labels.length && data.datasets.length) {
+                return data.labels.map((label, i) => {
+                  const value = data.datasets[0].data[i];
+                  return {
+                    text: `${label} (${value.toFixed(1)}%)`,
+                    fillStyle: data.datasets[0].backgroundColor[i],
+                    strokeStyle: data.datasets[0].borderColor,
+                    lineWidth: data.datasets[0].borderWidth,
+                    hidden: false,
+                    index: i
+                  };
+                });
+              }
+              return [];
+            }
+          }
+        },
+        tooltip: {
+          enabled: false
+        }
+      },
+      layout: {
+        padding: {
+          left: 10,
+          right: 10,
+          top: 10,
+          bottom: 10
+        }
+      }
+    };
+
+    new Chart(canvas, {
+      type: 'pie',
+      data: {
+        labels: sortedData.map(item => item.name),
+        datasets: [{
+          data: percentages,
+          backgroundColor: [
+            '#8cd82d', 
+            '#d8d8d8',
+            '#b8b8b8',
+            '#989898',
+            '#787878',
+            '#686868',
+            '#585858',
+            '#484848',
+            '#383838',
+            '#282828'
+          ],
+          borderWidth: 1,
+          borderColor: 'white'
+        }]
+      },
+      options: pieChartOptions
+    });
+    
+    return canvas;
+  }
+}
+
+window.addEventListener('resize', function() {
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    table.style.width = '100%';
+  });
+});
+
+async function loadSpreadsheets() {
+  console.log('Starting loadSpreadsheets function');
+  const loadingElement = document.getElementById('loading');
+  if (!loadingElement) {
+    console.error('Loading element not found');
+    return;
+  }
+
+  try {
+    const [data1, data2, data3] = await Promise.all([
+      fetchSpreadsheetData(spreadsheet1URL),
+      fetchSpreadsheetData(spreadsheet2URL),
+      fetchSpreadsheetData(spreadsheet3URL)
+    ]);
+    
+    const spreadsheet1El = document.getElementById('spreadsheet1');
+    const spreadsheet2El = document.getElementById('spreadsheet2');
+    const spreadsheet3El = document.getElementById('spreadsheet3');
+
+    if (spreadsheet1El) spreadsheet1El.innerHTML = data1.tableHtml;
+    if (spreadsheet2El) spreadsheet2El.innerHTML = data2.tableHtml;
+    if (spreadsheet3El) spreadsheet3El.innerHTML = data3.tableHtml;
+    
+    loadingElement.style.display = 'none';
+
+    const select = document.getElementById('condition-select');
+    if (select && data2.table) {
+      const rows = Array.from(data2.table.querySelectorAll('tr'));
+      
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      for (let i = 2; i < rows.length; i++) { 
+        const cells = rows[i].querySelectorAll('td');
+        if (cells.length >= 1) {
+          const condition = cells[0].textContent.trim();
+          if (condition && condition !== "" && condition.toLowerCase() !== "conditions") {
+            const option = document.createElement('option');
+            option.value = condition;
+            option.textContent = condition;
+            select.appendChild(option);
+          }
+        }
+      }
+    }
+
+    if (select) {
+      select.addEventListener('change', function() {
+        const selectedCondition = this.value;
+        const accordion = document.getElementById('product-accordion');
+        
+        accordion.style.display = selectedCondition ? 'block' : 'none';
+
+        const reportCountSpan = document.querySelector('#condition-report-count');
+        if (selectedCondition && data3.table) {
+          let totalReports = 0;
+          const rows = data3.table.querySelectorAll('tr');
+          
+          for (let i = 2; i < rows.length; i++) {
+            const cells = rows[i].querySelectorAll('td');
+            if (cells.length > 1) {
+              const rowCondition = cells[0].textContent.trim();
+              const effectType = cells[1].textContent.trim();
+              
+              if (rowCondition.toLowerCase() === selectedCondition.toLowerCase() && 
+                  ["Not effective", "Mild benefit", "Good benefit", "This is exactly what I need"].includes(effectType)) {
+                for (let j = 2; j < cells.length; j++) {
+                  totalReports += parseFloat(cells[j].textContent.trim()) || 0;
+                }
+              }
+            }
+          }
+
+          if (!reportCountSpan) {
+            const newSpan = document.createElement('div');
+            newSpan.id = 'condition-report-count';
+            newSpan.style.marginLeft = '50px';
+            newSpan.style.fontSize = '14px';
+            newSpan.style.color = '#666';
+            newSpan.style.fontWeight = '300';
+            document.querySelector('.subheader-text').appendChild(newSpan);
+          }
+          document.querySelector('#condition-report-count').textContent = `${Math.round(totalReports)} Reports`;
+        } else if (reportCountSpan) {
+          reportCountSpan.textContent = '';
+        }
+
+        document.querySelectorAll('.selected-condition').forEach(span => {
+          span.textContent = selectedCondition || '';
+        });
+        
+        const accordionItems = Array.from(accordion.children);
+        
+        accordionItems.sort((a, b) => {
+          const productNameA = a.querySelector('.accordion-header span:first-child').textContent.trim();
+          const productNameB = b.querySelector('.accordion-header span:first-child').textContent.trim();
+          
+          const scoreDataA = getProductScore(productNameA, selectedCondition, data3.table);
+          const scoreDataB = getProductScore(productNameB, selectedCondition, data3.table);
+          
+          return scoreDataB.score - scoreDataA.score; 
+        });
+        
+        accordionItems.forEach(item => {
+          const productName = item.querySelector('.accordion-header span:first-child').textContent.trim();
+          const { score } = getProductScore(productName, selectedCondition, data3.table);
+          const scoreDisplay = item.querySelector('.accordion-header > span');
+          scoreDisplay.innerHTML = `<span style="font-weight: 400; font-size: 14px">What works for you score </span><span style="font-weight: 600; font-size: 20px">${score}/500</span>`;
+          
+          const header = item.querySelector('.accordion-header');
+          const newHeader = header.cloneNode(true);
+          header.parentNode.replaceChild(newHeader, header);
+          
+          newHeader.addEventListener('click', function() {
+            const content = this.nextElementSibling;
+            const allContents = document.querySelectorAll('.accordion-content');
+            
+            allContents.forEach(otherContent => {
+              if (otherContent !== content && otherContent.classList.contains('active')) {
+                otherContent.classList.remove('active');
+              }
+            });
+            
+            content.classList.toggle('active');
+            
+            if (content.classList.contains('active')) {
+              const productName = this.querySelector('span:first-child').textContent.trim();
+              const selectedCondition = document.getElementById('condition-select').value;
+              const effectivenessContainer = content.querySelector('.effectiveness-content');
+              const effectsContainer = content.querySelector('.effects-content');
+              
+              effectivenessContainer.innerHTML = '';
+              effectsContainer.innerHTML = '';
+              
+              const effectivenessData = getEffectivenessData(productName, selectedCondition, data3.table);
+              if (effectivenessData.effectiveness.length > 0) {
+                const titleDiv = content.querySelector('.split-cell-title');
+                const existingReportsSpan = titleDiv.querySelector('div');
+                if (existingReportsSpan) {
+                  titleDiv.removeChild(existingReportsSpan);
+                }
+
+                const reportsSpan = document.createElement('div');
+                reportsSpan.style.fontSize = '14px';
+                reportsSpan.style.fontWeight = '300';
+                reportsSpan.style.color = '#666';
+                reportsSpan.style.marginTop = '5px';
+                reportsSpan.textContent = `${Math.round(effectivenessData.totalReports)} Reports`;
+                titleDiv.appendChild(reportsSpan);
+
+                const effectivenessList = createDataList(effectivenessData.effectiveness, null, true);
+                effectivenessContainer.appendChild(effectivenessList);
+              } else {
+                effectivenessContainer.innerHTML = 'No effectiveness data available';
+              }
+              
+              const effects = getUndesiredEffects(productName, data3.table);
+              if (effects.length > 0) {
+                const effectsList = createDataList(effects, 8);
+                effectsContainer.appendChild(effectsList);
+              } else {
+                effectsContainer.innerHTML = 'No undesired effects data available';
+              }
+            }
+          });
+        });
+        
+        accordion.innerHTML = '';
+        accordionItems.forEach(item => accordion.appendChild(item));
+      });
+    }
+
+    const accordion = document.getElementById('product-accordion');
+    if (accordion && data1.table) {
+      accordion.style.display = 'none'; 
+      const rows = Array.from(data1.table.querySelectorAll('tr'));
+      
+      for (let i = 2; i < rows.length; i++) { 
+        const cells = rows[i].querySelectorAll('td');
+        if (cells.length >= 1) {
+          const productName = cells[0].textContent.trim();
+          if (productName && productName !== "") {
+            const dominance = cells.length >= 9 ? cells[8].textContent.trim() : '';
+            const strain = cells.length >= 6 ? cells[5].textContent.trim() : '';
+            const thcContent = cells.length >= 7 ? cells[6].textContent.trim() : '';
+            const cbdContent = cells.length >= 8 ? cells[7].textContent.trim() : '';
+            const backgroundColor = getDominanceColor(dominance);
+            
+            let thcDisplay = thcContent ? `${thcContent}% THC` : '';
+            let cbdDisplay = cbdContent ? `${cbdContent}% CBD` : '';
+            
+            const { reports } = getProductScore(productName, '', data3.table);
+            
+            const accordionItem = `
+              <div class="accordion-item">
+                <div class="accordion-header" style="background-color: ${backgroundColor}">
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <span style="font-weight: 600; font-size: 20px">${productName}</span>
+                    ${strain ? `<span style="font-weight: normal; font-size: 14px">[${strain}]</span>` : ''}
+                    <span style="font-weight: normal; font-size: 14px">${dominance}</span>
+                    ${thcDisplay ? `<span style="font-weight: normal; font-size: 14px">${thcDisplay}</span>` : ''}
+                    ${cbdDisplay ? `<span style="font-weight: normal; font-size: 14px">${cbdDisplay}</span>` : ''}
+                  </div>
+                  <span style="font-size: 14px">${reports} reports</span>
+                </div>
+                <div class="accordion-content" style="background-color: ${backgroundColor}">
+                  <div class="split-container">
+                    <div class="split-cell">
+                      <div class="split-cell-title">Effective for <span class="selected-condition"></span></div>
+                      <div class="effectiveness-content"></div>
+                    </div>
+                    <div class="split-cell">
+                      <div class="split-cell-title">Common undesired effects</div>
+                      <div class="effects-content" id="effects-${productName.replace(/\s+/g, '-')}"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+            accordion.innerHTML += accordionItem;
+          }
+        }
+      }
+      
+      const accordionHeaders = document.querySelectorAll('.accordion-header');
+      accordionHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+          const content = this.nextElementSibling;
+          const allContents = document.querySelectorAll('.accordion-content');
+          
+          allContents.forEach(otherContent => {
+            if (otherContent !== content && otherContent.classList.contains('active')) {
+              otherContent.classList.remove('active');
+            }
+          });
+          
+          content.classList.toggle('active');
+          
+          if (content.classList.contains('active')) {
+            const productName = this.querySelector('span:first-child').textContent.trim();
+            const selectedCondition = document.getElementById('condition-select').value;
+            const effectivenessContainer = content.querySelector('.effectiveness-content');
+            const effectsContainer = content.querySelector('.effects-content');
+            
+            if (effectivenessContainer && !effectivenessContainer.querySelector('table')) {
+              const effectivenessData = getEffectivenessData(productName, selectedCondition, data3.table);
+              if (effectivenessData.effectiveness.length > 0) {
+                const titleDiv = content.querySelector('.split-cell-title');
+                const existingReportsSpan = titleDiv.querySelector('div');
+                if (existingReportsSpan) {
+                  titleDiv.removeChild(existingReportsSpan);
+                }
+
+                const reportsSpan = document.createElement('div');
+                reportsSpan.style.fontSize = '14px';
+                reportsSpan.style.fontWeight = '300';
+                reportsSpan.style.color = '#666';
+                reportsSpan.style.marginTop = '5px';
+                reportsSpan.textContent = `${Math.round(effectivenessData.totalReports)} Reports`;
+                titleDiv.appendChild(reportsSpan);
+
+                const effectivenessList = createDataList(effectivenessData.effectiveness, null, true);
+                effectivenessContainer.innerHTML = '';
+                effectivenessContainer.appendChild(effectivenessList);
+              } else {
+                effectivenessContainer.innerHTML = 'No effectiveness data available';
+              }
+            }
+
+            if (effectsContainer && !effectsContainer.querySelector('table')) {
+              const effects = getUndesiredEffects(productName, data3.table);
+              if (effects.length > 0) {
+                const effectsList = createDataList(effects, 8); 
+                effectsContainer.innerHTML = '';
+                effectsContainer.appendChild(effectsList);
+              } else {
+                effectsContainer.innerHTML = 'No undesired effects data available';
+              }
+            }
+          }
+        });
+      });
+    }
+
+  } catch (error) {
+    console.error('Error loading spreadsheets:', error);
+    if (loadingElement) {
+      loadingElement.innerHTML = 'Error loading spreadsheet data. Please try again later.';
+    }
+  }
+}
+
+window.addEventListener('load', loadSpreadsheets);
+  </script>
+</body>
+
+</html>
