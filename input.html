@@ -1,0 +1,946 @@
+<html><head><base href="https://imperfiktillusion.github.io/whatworksforyou/">
+  <title>What works for you?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      font-size: 12px;
+    }
+
+    #top-section {
+      min-height: 100vh;
+      border-bottom: 2px solid #ccc;
+      margin-bottom: 20px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 32px;
+      text-align: left;
+      margin-top: 8vh;
+      padding: 0px 50px;
+      font-weight: 300;
+    }
+
+    .subheader-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 24px;
+      text-align: left;
+      padding: 20px 50px;
+      font-weight: 300;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .accordion {
+      width: 90%;
+      margin: 20px auto;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .accordion-item {
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      background: #f8f8f8;
+      padding: 15px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #434343;
+      padding-top: 16px;
+      padding-bottom: 12px;
+    }
+
+    .accordion-header span:first-child {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .accordion-header:hover {
+      background: #f0f0f0;
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      background: white;
+      padding: 0 15px;
+    }
+
+    .accordion-content.active {
+      max-height: none; /* Remove fixed height restriction */
+      padding: 15px;
+      padding-bottom: 30px;
+    }
+
+    .product-details-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    td:first-child,
+    th:first-child {
+      max-width: 50px;
+      width: 50px;
+    }
+
+    th {
+      background: #f0f0f0;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    #loading {
+      padding: 10px;
+      font-style: italic;
+      color: #666;
+    }
+
+    #data-section {
+      display: block !important; /* Remove the 'none' display */
+      padding: 20px;
+      margin: 20px auto;
+      width: 90%;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    #data-section > div {
+      margin-bottom: 40px;
+    }
+
+    #data-section h2 {
+      font-size: 24px;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+
+    .split-container {
+      display: none;
+    }
+
+    .split-cell {
+      display: none;
+    }
+
+    .split-cell-title {
+      display: none;
+    }
+
+    .effects-content,
+    .effectiveness-content {
+      display: none;
+    }
+
+    canvas {
+      display: none;
+    }
+
+    #product-accordion {
+      margin-bottom: 2px;
+    }
+
+    /* Updated styles */
+    .conditions-grid {
+      display: grid;
+      grid-template-columns: 270px, 270px, 270px, 270px;
+      gap: 8px;
+      padding: 10px 0;
+      border: 1px;
+    }
+
+    .condition-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      padding: 2px 0;
+    }
+
+    .condition-checkbox input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+
+    .condition-checkbox label {
+      font-size: 14px;
+      color: #434343;
+      white-space: nowrap;
+    }
+
+    .condition-accordion {
+      width: 90%;
+      margin: 20px auto;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .condition-accordion-item {
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .condition-accordion-header {
+      background: #f8f8f8;
+      padding: 15px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #434343;
+      padding-top: 16px;
+      padding-bottom: 12px;
+    }
+
+    .condition-accordion-header span:first-child {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .condition-accordion-header:hover {
+      background: #f0f0f0;
+    }
+
+    .condition-accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      background: white;
+      padding: 0 15px;
+    }
+
+    .condition-accordion-content.active {
+      max-height: 1000px;
+      padding: 15px;
+      padding-bottom: 30px;
+    }
+
+    .product-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      padding: 2px 0; /* Matches condition checkbox padding */
+    }
+
+    .product-checkbox input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+
+    .product-checkbox label {
+      font-size: 14px;
+      color: #434343;
+      white-space: nowrap;
+    }
+
+    /* Ensure MyProducts accordion expands properly */
+    #myproducts-accordion .accordion-content.active {
+      max-height: none;
+      height: auto;
+    }
+
+    /* New styles for products grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 300px);
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+      padding: 10px;
+    }
+
+    .product-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      padding: 2px 0;
+      min-width: 280px;
+    }
+  </style>
+</head>
+<body>
+  <div id="top-section">
+    <h1 class="header-text">
+      Crowd sourcing answers. Which of the medical cannabis options available in New Zealand work best for your
+      condition?
+      <span style="font-size: 24px">-   Currently displaying completely random data</span>
+    </h1>
+    
+    <div class="condition-accordion">
+      <div class="condition-accordion-item">
+        <div class="condition-accordion-header">
+          <span>I am prescribed medical cannabis for…</span>
+        </div>
+        <div class="condition-accordion-content">
+          <div class="conditions-grid">
+            <!-- Will be populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subheader-text" style="margin-bottom: 20px;">
+      My medical cannabis products
+    </div>
+
+    <div class="accordion" id="product-accordion">
+      <!-- Product items will be populated here -->
+    </div>
+
+    <!-- MyProducts accordion -->
+    <div class="accordion" id="myproducts-accordion">
+      <div class="accordion-item">
+        <div class="accordion-header">
+          <span>Add a product +</span>
+        </div>
+        <div class="accordion-content">
+          <div class="products-grid">
+            <!-- Will be populated with products -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading">Loading data...</div>
+
+  <div id="data-section">
+    <div id="spreadsheet1"></div>
+    <div id="spreadsheet2"></div>
+    <div id="spreadsheet3"></div>
+  </div>
+
+  <script>
+    async function fetchSpreadsheetData(url) {
+      try {
+        console.log('Fetching data from:', url);
+        const cacheBuster = `&timestamp=${new Date().getTime()}`;
+        const response = await fetch(url + cacheBuster, {
+          cache: 'no-store',
+          headers: {
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const html = await response.text();
+        console.log('Received HTML response length:', html.length);
+        
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        const title = doc.querySelector('title')?.textContent || '';
+        const table = doc.querySelector('table');
+        
+        if (!table) {
+          console.error('No table found in response HTML');
+          throw new Error('No table found in spreadsheet data');
+        }
+
+        const rows = table.querySelectorAll('tr');
+        console.log('Found rows:', rows.length);
+        
+        if (!rows || rows.length === 0) {
+          console.error('No rows found in table');
+          return {
+            title: 'Nothing Found',
+            tableHtml: '<p>Nothing found</p>',
+            table: null
+          };
+        }
+
+        const headerRow = rows[0];
+        if (headerRow) {
+          const cells = headerRow.querySelectorAll('td');
+          cells.forEach(cell => {
+            const content = cell.innerHTML;
+            const th = document.createElement('th');
+            th.innerHTML = content;
+            cell.replaceWith(th);
+          });
+        }
+        
+        Array.from(rows).forEach((row, index) => {
+          if (index === 0) return;
+        });
+
+        return { title, tableHtml: table.outerHTML, table };
+      } catch (error) {
+        console.error('Error fetching spreadsheet:', error);
+        return { 
+          title: 'Error',
+          tableHtml: `<p class="error">Error loading spreadsheet data: ${error.message}</p>`,
+          table: null
+        };
+      }
+    }
+
+    const spreadsheet1URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTww6fpAXf2v9iAoHDaMmlT44fgIggpFPAKubK9xRsDQfpdnquC3JYt2sL54Mn6Bgl-ld3jjQR7QIXP/pubhtml?gid=0&single=true';
+    const spreadsheet2URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDPYraFDktD7EtJ7T06_FGu4fszOWQ0cA0Yr0DsP3B6N9WYRofdReaZKurPsWEMW1-kelb9RTGGgps/pubhtml?gid=0&single=true';
+    const spreadsheet3URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDPYraFDktD7EtJ7T06_FGu4fszOWQ0cA0Yr0DsP3B6N9WYRofdReaZKurPsWEMW1-kelb9RTGGgps/pubhtml?gid=1303283638&single=true';
+
+    function getDominanceColor(dominance) {
+      const normalizedDominance = dominance.toLowerCase().trim();
+      switch (normalizedDominance) {
+        case 'sativa dominant': return '#ffea8a';
+        case 'indica dominant': return '#9be7f5';
+        case 'balanced hybrid': return '#bee8a6';
+        case 'unknown': return '#d1e6cb';
+        default: return '#EAEAEA';
+      }
+    }
+
+    function getProductScore(productName, condition, spreadsheet3Table) {
+      if (!condition || !spreadsheet3Table) return { score: 0, reports: 0 };
+
+      const rows = spreadsheet3Table.querySelectorAll('tr');
+      if (rows.length < 2) return { score: 0, reports: 0 };
+      
+      const productNameRow = rows[1];  
+      const productCells = productNameRow.querySelectorAll('td');
+      let productColumnIndex = -1;
+
+      for (let i = 0; i < productCells.length; i++) {
+        if (productCells[i].textContent.trim().toLowerCase() === productName.trim().toLowerCase()) {
+          productColumnIndex = i;
+          break;
+        }
+      }
+
+      if (productColumnIndex === -1) {
+        console.log(`Product not found: ${productName}`);
+        return { score: 0, reports: 0 };
+      }
+
+      const reportsRow = rows[1];  
+      const reports = reportsRow && productColumnIndex < reportsRow.querySelectorAll('td').length ? 
+        parseInt(reportsRow.querySelectorAll('td')[productColumnIndex].textContent.trim()) || 0 : 0;
+
+      for (let i = 2; i < rows.length; i++) {
+        const cells = rows[i].querySelectorAll('td');
+        if (cells.length > 1) {
+          const conditionText = cells[0].textContent.trim().toLowerCase();
+          const scoreText = cells[1].textContent.trim().toLowerCase();
+          
+          if (conditionText === condition.trim().toLowerCase() && scoreText === "score") {
+            const score = parseFloat(cells[productColumnIndex].textContent.trim()) || 0;
+            console.log(`Found Score for ${productName} under ${condition}:`, score);
+            return { score, reports };
+          }
+        }
+      }
+
+      console.log(`No score found for ${productName} under ${condition}`);
+      return { score: 0, reports: 0 };
+    }
+
+    function getUndesiredEffects(productName, spreadsheet3Table) {
+      if (!spreadsheet3Table) return [];
+      
+      const rows = spreadsheet3Table.querySelectorAll('tr');
+      if (rows.length < 2) return [];
+      
+      const productNameRow = rows[1];
+      const productCells = productNameRow.querySelectorAll('td');
+      let productColumnIndex = -1;
+
+      for (let i = 0; i < productCells.length; i++) {
+        if (productCells[i].textContent.trim().toLowerCase() === productName.trim().toLowerCase()) {
+          productColumnIndex = i;
+          break;
+        }
+      }
+
+      if (productColumnIndex === -1) return [];
+
+      const effects = [];
+      let hasAcceptableSideEffects = false;
+      
+      for (let i = 2; i < rows.length; i++) {
+        const cells = rows[i].querySelectorAll('td');
+        if (cells.length > 1) {
+          const rowType = cells[0].textContent.trim().toLowerCase();
+          if (rowType === "undesired effects") {
+            const effectName = cells[1].textContent.trim();
+            const value = parseFloat(cells[productColumnIndex].textContent.trim()) || 0;
+            
+            if (effectName === "Only acceptable side effects") {
+              hasAcceptableSideEffects = true;
+            }
+            
+            if (value > 0) {
+              effects.push({ name: effectName, value: value });
+            }
+          }
+        }
+      }
+
+      if (!hasAcceptableSideEffects) {
+        effects.unshift({ name: "Only acceptable side effects", value: 0 });
+      }
+
+      return effects;
+    }
+
+    function getEffectivenessData(productName, condition, spreadsheet3Table) {
+      if (!spreadsheet3Table || !condition) return { effectiveness: [], totalReports: 0 };
+      
+      const rows = spreadsheet3Table.querySelectorAll('tr');
+      if (rows.length < 2) return { effectiveness: [], totalReports: 0 };
+      
+      const productNameRow = rows[1];
+      const productCells = productNameRow.querySelectorAll('td');
+      let productColumnIndex = -1;
+
+      for (let i = 0; i < productCells.length; i++) {
+        if (productCells[i].textContent.trim().toLowerCase() === productName.trim().toLowerCase()) {
+          productColumnIndex = i;
+          break;
+        }
+      }
+
+      if (productColumnIndex === -1) return { effectiveness: [], totalReports: 0 };
+
+      const effectiveness = [];
+      const effectTypes = [
+        "Not effective",
+        "Mild benefit",
+        "Good benefit", 
+        "This is exactly what I need"
+      ];
+      
+      for (let i = 2; i < rows.length; i++) {
+        const cells = rows[i].querySelectorAll('td');
+        if (cells.length > 1) {
+          const rowCondition = cells[0].textContent.trim();
+          const effectType = cells[1].textContent.trim();
+          
+          if (rowCondition.toLowerCase() === condition.toLowerCase() && 
+              effectTypes.includes(effectType)) {
+            const value = parseFloat(cells[productColumnIndex].textContent.trim()) || 0;
+            if (value > 0) {
+              effectiveness.push({ name: effectType, value: value });
+            }
+          }
+        }
+      }
+
+      const totalReports = effectiveness.reduce((sum, item) => sum + item.value, 0);
+      
+      return {
+        effectiveness: effectiveness,
+        totalReports: totalReports
+      };
+    }
+
+    function createDataList(data, limit = null, isEffectiveness = false) {
+      const canvas = document.createElement('canvas');
+      canvas.style.width = '100%';
+      canvas.style.height = '300px';
+      
+      return canvas;
+    }
+
+    function saveSelectionsToLocalStorage() {
+      // Save selected conditions
+      const selectedConditions = Array.from(document.querySelectorAll('.condition-checkbox input:checked'))
+        .map(checkbox => checkbox.value);
+      localStorage.setItem('selectedConditions', JSON.stringify(selectedConditions));
+      
+      // Save selected products
+      const selectedProducts = Array.from(document.querySelectorAll('.product-checkbox input:checked'))
+        .map(checkbox => checkbox.value);
+      localStorage.setItem('selectedProducts', JSON.stringify(selectedProducts));
+    }
+
+    function loadSelectionsFromLocalStorage() {
+      // Load and apply selected conditions
+      try {
+        const selectedConditions = JSON.parse(localStorage.getItem('selectedConditions')) || [];
+        document.querySelectorAll('.condition-checkbox input').forEach(checkbox => {
+          if (selectedConditions.includes(checkbox.value)) {
+            checkbox.checked = true;
+          }
+        });
+      } catch (e) {
+        console.error('Error loading conditions from localStorage:', e);
+      }
+
+      // Load and apply selected products
+      try {
+        const selectedProducts = JSON.parse(localStorage.getItem('selectedProducts')) || [];
+        document.querySelectorAll('.product-checkbox input').forEach(checkbox => {
+          if (selectedProducts.includes(checkbox.value)) {
+            checkbox.checked = true;
+          }
+        });
+      } catch (e) {
+        console.error('Error loading products from localStorage:', e);
+      }
+    }
+
+    window.addEventListener('resize', function() {
+      const tables = document.querySelectorAll('table');
+      
+      tables.forEach(table => {
+        table.style.width = '100%';
+      });
+    });
+
+    async function loadSpreadsheets() {
+      console.log('Starting loadSpreadsheets function');
+      const loadingElement = document.getElementById('loading');
+      if (!loadingElement) {
+        console.error('Loading element not found');
+        return;
+      }
+
+      try {
+        const [data1, data2, data3] = await Promise.all([
+          fetchSpreadsheetData(spreadsheet1URL),
+          fetchSpreadsheetData(spreadsheet2URL),
+          fetchSpreadsheetData(spreadsheet3URL)
+        ]);
+        
+        const spreadsheet1El = document.getElementById('spreadsheet1');
+        const spreadsheet2El = document.getElementById('spreadsheet2');
+        const spreadsheet3El = document.getElementById('spreadsheet3');
+
+        if (spreadsheet1El) {
+          spreadsheet1El.innerHTML = `
+            <h2>Products Data</h2>
+            ${data1.tableHtml}
+          `;
+        }
+        if (spreadsheet2El) {
+          spreadsheet2El.innerHTML = `
+            <h2>Lists Data</h2>
+            ${data2.tableHtml}
+          `;
+        }
+        if (spreadsheet3El) {
+          spreadsheet3El.innerHTML = `
+            <h2>Effectiveness Data</h2>
+            ${data3.tableHtml}
+          `;
+        }
+        
+        loadingElement.style.display = 'none';
+
+        const conditionsGrid = document.querySelector('.conditions-grid');
+        if (conditionsGrid && data2.table) {
+          const rows = Array.from(data2.table.querySelectorAll('tr'));
+          const conditions = [];
+          const columnIndex = 0; // Change to 3 (0-based index for column 4)
+          
+          // Start from row 2 to skip headers
+          for (let i = 2; i < rows.length; i++) {
+            const cells = rows[i].querySelectorAll('td');
+            if (cells.length > columnIndex) {
+              const condition = cells[columnIndex].textContent.trim();
+              if (condition && condition.toLowerCase() !== "conditions") {
+                conditions.push(condition);
+              }
+            }
+          }
+
+          // Create the grid with exactly 4 columns of 5 items each
+          const gridHTML = `
+            <div style="display: grid; grid-template-columns: repeat(4, 270px); gap: 8px; justify-content: center;">
+              <div class="grid-column">
+                ${conditions.slice(0, 5).map((condition, i) => `
+                  <div class="condition-checkbox">
+                    <input type="checkbox" id="condition-${i}" value="${condition}">
+                    <label for="condition-${i}">${condition}</label>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="grid-column">
+                ${conditions.slice(5, 10).map((condition, i) => `
+                  <div class="condition-checkbox">
+                    <input type="checkbox" id="condition-${i+5}" value="${condition}">
+                    <label for="condition-${i+5}">${condition}</label>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="grid-column">
+                ${conditions.slice(10, 15).map((condition, i) => `
+                  <div class="condition-checkbox">
+                    <input type="checkbox" id="condition-${i+10}" value="${condition}">
+                    <label for="condition-${i+10}">${condition}</label>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="grid-column">
+                ${conditions.slice(15, 20).map((condition, i) => `
+                  <div class="condition-checkbox">
+                    <input type="checkbox" id="condition-${i+15}" value="${condition}">
+                    <label for="condition-${i+15}">${condition}</label>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+          
+          conditionsGrid.innerHTML = gridHTML;
+
+          // Add event listeners to checkboxes
+          conditionsGrid.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+              if (!this.checked) {
+                if (confirm("Warning: Unselecting a condition will delete all your reports for that condition. Are you sure you want to continue?")) {
+                  updateProductDisplay();
+                  saveSelectionsToLocalStorage();
+                } else {
+                  this.checked = true;
+                }
+              } else {
+                updateProductDisplay();
+                saveSelectionsToLocalStorage();
+              }
+            });
+          });
+        }
+
+        const myProductsAccordion = document.getElementById('myproducts-accordion');
+        if (myProductsAccordion && data1.table) {
+          myProductsAccordion.querySelector('.products-grid').innerHTML = ''; // Start with empty product grid
+
+          const productsGrid = myProductsAccordion.querySelector('.products-grid');
+          const tableRows = Array.from(data1.table.querySelectorAll('tr'));
+          
+          // Update the container styling
+          productsGrid.style.display = 'grid';
+          productsGrid.style.gridTemplateColumns = 'repeat(auto-fill, 300px)';
+          productsGrid.style.gap = '8px';
+          productsGrid.style.justifyContent = 'center';
+          productsGrid.style.width = '100%';
+          productsGrid.style.padding = '10px';
+
+          for (let i = 2; i < tableRows.length; i++) { 
+            const cells = tableRows[i].querySelectorAll('td');
+            if (cells.length >= 1) {
+              const productName = cells[0].textContent.trim();
+              if (productName && productName !== "") {
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'product-checkbox';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `product-${i}`;
+                checkbox.value = productName;
+                
+                checkbox.addEventListener('change', function() {
+                  if (!this.checked) {
+                    if (confirm("Warning: Unselecting a product will delete your report for that product. Are you sure you want to continue?")) {
+                      updateProductAccordionVisibility();
+                      saveSelectionsToLocalStorage();
+                    } else {
+                      this.checked = true;
+                    }
+                  } else {
+                    updateProductAccordionVisibility();
+                    saveSelectionsToLocalStorage();
+                  }
+                });
+                
+                const label = document.createElement('label');
+                label.htmlFor = `product-${i}`;
+                label.textContent = productName;
+                
+                checkboxDiv.appendChild(checkbox);
+                checkboxDiv.appendChild(label);
+                productsGrid.appendChild(checkboxDiv);
+              }
+            }
+          }
+          
+          // Continue with existing product accordion items using the same tableRows variable
+          const accordion = document.getElementById('product-accordion');
+          accordion.innerHTML = ''; // Start with empty product accordion
+
+          for (let i = 2; i < tableRows.length; i++) { 
+            const cells = tableRows[i].querySelectorAll('td');
+            if (cells.length >= 1) {
+              const productName = cells[0].textContent.trim();
+              if (productName && productName !== "") {
+                const dominance = cells.length >= 9 ? cells[8].textContent.trim() : '';
+                const strain = cells.length >= 6 ? cells[5].textContent.trim() : '';
+                const thcContent = cells.length >= 7 ? cells[6].textContent.trim() : '';
+                const cbdContent = cells.length >= 8 ? cells[7].textContent.trim() : '';
+                const backgroundColor = getDominanceColor(dominance);
+                
+                let thcDisplay = thcContent ? `${thcContent}% THC` : '';
+                let cbdDisplay = cbdContent ? `${cbdContent}% CBD` : '';
+                
+                const { reports } = getProductScore(productName, '', data3.table);
+                
+                const accordionItem = `
+                  <div class="accordion-item">
+                    <div class="accordion-header" style="background-color: ${backgroundColor}">
+                      <div style="display: flex; align-items: center; gap: 10px">
+                        <span style="font-weight: 600; font-size: 20px">${productName}</span>
+                        ${strain ? `<span style="font-weight: normal; font-size: 14px">[${strain}]</span>` : ''}
+                        <span style="font-weight: normal; font-size: 14px">${dominance}</span>
+                        ${thcDisplay ? `<span style="font-weight: normal; font-size: 14px">${thcDisplay}</span>` : ''}
+                        ${cbdDisplay ? `<span style="font-weight: normal; font-size: 14px">${cbdDisplay}</span>` : ''}
+                      </div>
+                    </div>
+                    <div class="accordion-content" style="background-color: ${backgroundColor}">
+                      <!-- Content will be empty now that charts are removed -->
+                    </div>
+                  </div>
+                `;
+                accordion.innerHTML += accordionItem;
+              }
+            }
+          }
+          
+          const accordionHeaders = document.querySelectorAll('.accordion-header');
+          accordionHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+              const content = this.nextElementSibling;
+              const allContents = document.querySelectorAll('.accordion-content');
+              
+              allContents.forEach(otherContent => {
+                if (otherContent !== content && otherContent.classList.contains('active')) {
+                  otherContent.classList.remove('active');
+                }
+              });
+              
+              content.classList.toggle('active');
+            });
+          });
+        }
+
+        const myProductsContent = myProductsAccordion.querySelector('.accordion-content');
+        const addProductHeader = myProductsAccordion.querySelector('.accordion-header');
+
+        // Check local storage first for any saved selections
+        const savedProducts = JSON.parse(localStorage.getItem('selectedProducts')) || [];
+
+        // If no products were saved in local storage, open the Add Product accordion
+        if (savedProducts.length === 0 && myProductsContent) {
+          myProductsContent.classList.add('active');
+        }
+
+      } catch (error) {
+        console.error('Error loading spreadsheets:', error);
+        if (loadingElement) {
+          loadingElement.innerHTML = 'Error loading spreadsheet data. Please try again later.';
+        }
+      }
+    }
+
+    function initConditionAccordion() {
+      const header = document.querySelector('.condition-accordion-header');
+      const content = document.querySelector('.condition-accordion-content');
+      
+      if (header && content) {
+        // Check localStorage for any saved conditions
+        const savedConditions = JSON.parse(localStorage.getItem('selectedConditions')) || [];
+        
+        // Only add 'active' class if no conditions were previously selected
+        if (savedConditions.length === 0) {
+          content.classList.add('active');
+        }
+        
+        header.addEventListener('click', () => {
+          content.classList.toggle('active');
+        });
+      }
+    }
+
+    function updateProductDisplay() {
+      const selectedConditions = Array.from(document.querySelectorAll('.condition-checkbox input:checked'))
+        .map(checkbox => checkbox.value);
+        
+      // Update all instances of selected condition text
+      document.querySelectorAll('.selected-condition').forEach(span => {
+        span.textContent = selectedConditions.join(', ');
+      });
+    }
+
+    function updateProductAccordionVisibility() {
+      const accordion = document.getElementById('product-accordion');
+      const accordionItems = accordion.querySelectorAll('.accordion-item');
+      const selectedProducts = Array.from(document.querySelectorAll('.product-checkbox input:checked'))
+        .map(checkbox => checkbox.value);
+
+      // Hide all product items
+      accordionItems.forEach(item => {
+        const productHeader = item.querySelector('.accordion-header span:first-child');
+        if (productHeader) {
+          const productName = productHeader.textContent.trim();
+          item.style.display = selectedProducts.includes(productName) ? 'block' : 'none';
+        }
+      });
+
+      // Show/hide the entire product accordion based on whether there are any selected products
+      accordion.style.display = selectedProducts.length > 0 ? 'block' : 'none';
+
+      // Move visible items to the top
+      Array.from(accordionItems)
+        .filter(item => item.style.display === 'block')
+        .forEach(item => accordion.appendChild(item));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const productAccordion = document.getElementById('product-accordion');
+      productAccordion.style.display = 'none'; // Initially hide the product accordion
+      
+      initConditionAccordion();
+      loadSpreadsheets().then(() => {
+        loadSelectionsFromLocalStorage();
+        updateProductDisplay();
+        updateProductAccordionVisibility();
+      });
+    });
+  </script>
+</body>
+</html>
