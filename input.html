@@ -1,16 +1,18 @@
-<html><head><base href="https://imperfiktillusion.github.io/whatworksforyou/">
+<html><head><base href="https://imperfiktillusion.github.io/whatworksforyou/input">
   <title>What works for you?</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* Base styles */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
       background: #f5f5f5;
-      font-size: 12px;
+      font-size: 8px;
     }
 
+    /* Layout containers */
     #top-section {
       min-height: 100vh;
       border-bottom: 2px solid #ccc;
@@ -20,7 +22,20 @@
       flex-direction: column;
     }
 
-    .header-text {
+    #data-section {
+      display: none !important;
+      padding: 20px;
+      margin: 20px auto;
+      width: 90%;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    #data-section > div {
+      margin-bottom: 40px;
+    }
+
+    /* Typography */
+    .page-title {
       font-family: 'Poppins', sans-serif;
       font-size: 32px;
       text-align: left;
@@ -29,7 +44,7 @@
       font-weight: 300;
     }
 
-    .subheader-text {
+    .section-title {
       font-family: 'Poppins', sans-serif;
       font-size: 24px;
       text-align: left;
@@ -40,60 +55,20 @@
       gap: 10px;
     }
 
-    .accordion {
-      width: 90%;
-      margin: 20px auto;
-      font-family: 'Poppins', sans-serif;
+    #data-section h2 {
+      font-size: 24px;
+      font-weight: 300;
+      margin-bottom: 20px;
     }
 
-    .accordion-item {
-      border: 1px solid #ddd;
-      margin-bottom: 5px;
-      border-radius: 4px;
-      overflow: hidden;
+    /* Loading state */
+    #loading {
+      padding: 10px;
+      font-style: italic;
+      color: #666;
     }
 
-    .accordion-header {
-      background: #f8f8f8;
-      padding: 15px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-      color: #434343;
-      padding-top: 16px;
-      padding-bottom: 12px;
-    }
-
-    .accordion-header span:first-child {
-      font-size: 20px;
-      font-weight: 600;
-    }
-
-    .accordion-header:hover {
-      background: #f0f0f0;
-    }
-
-    .accordion-content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease-out;
-      background: white;
-      padding: 0 15px;
-    }
-
-    .accordion-content.active {
-      max-height: none; /* Remove fixed height restriction */
-      padding: 15px;
-      padding-bottom: 30px;
-    }
-
-    .product-details-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
+    /* Table styles */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -101,17 +76,10 @@
       font-size: 12px;
     }
 
-    th,
-    td {
+    th, td {
       padding: 8px;
       border: 1px solid #ddd;
       text-align: left;
-    }
-
-    td:first-child,
-    th:first-child {
-      max-width: 50px;
-      width: 50px;
     }
 
     th {
@@ -126,97 +94,58 @@
       background: #f9f9f9;
     }
 
-    #loading {
-      padding: 10px;
-      font-style: italic;
-      color: #666;
-    }
-
-    #data-section {
-      display: block !important; /* Remove the 'none' display */
-      padding: 20px;
-      margin: 20px auto;
-      width: 90%;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    #data-section > div {
-      margin-bottom: 40px;
-    }
-
-    #data-section h2 {
-      font-size: 24px;
-      font-weight: 300;
-      margin-bottom: 20px;
-    }
-
-    .split-container {
-      display: none;
-    }
-
-    .split-cell {
-      display: none;
-    }
-
-    .split-cell-title {
-      display: none;
-    }
-
-    .effects-content,
-    .effectiveness-content {
-      display: none;
-    }
-
-    canvas {
-      display: none;
-    }
-
-    #product-accordion {
-      margin-bottom: 2px;
-    }
-
-    /* Updated styles */
+    /* Conditions Grid Styles */
     .conditions-grid {
       display: grid;
-      grid-template-columns: 270px, 270px, 270px, 270px;
+      grid-template-columns: repeat(4, 270px);
       gap: 8px;
-      padding: 10px 0;
-      border: 1px;
+      justify-content: center;
+      width: 100%;
+      padding: 10px;
     }
 
-    .condition-checkbox {
+    .conditions-grid > div {
+      display: grid;
+      grid-template-columns: repeat(4, 270px);
+      gap: 8px;
+      justify-content: center;
+      margin: 0 auto;  /* This helps center the inner grid */
+    }
+
+    /* Product Grid Styles */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 270px);
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+      padding: 10px;
+    }
+
+    .grid-column {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      white-space: nowrap;
-      padding: 2px 0;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .condition-checkbox input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      margin: 0;
-    }
-
-    .condition-checkbox label {
-      font-size: 14px;
-      color: #434343;
-      white-space: nowrap;
-    }
-
+    /* Accordion Components */
+    .accordion,
     .condition-accordion {
       width: 90%;
       margin: 20px auto;
       font-family: 'Poppins', sans-serif;
     }
 
+    .accordion-item,
     .condition-accordion-item {
       border: 1px solid #ddd;
       margin-bottom: 5px;
       border-radius: 4px;
       overflow: hidden;
+      padding: 0; /* Ensure no padding at this level */
     }
 
+    .accordion-header,
     .condition-accordion-header {
       background: #f8f8f8;
       padding: 15px;
@@ -230,16 +159,99 @@
       padding-bottom: 12px;
     }
 
-    .condition-accordion-header span:first-child {
+    .condition-accordion-header span:first-child,
+    #myproducts-accordion .accordion-header span {
       font-size: 20px;
       font-weight: 600;
     }
 
-    .condition-accordion-header:hover {
-      background: #f0f0f0;
+    .accordion-content,
+    .condition-accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      background: white;
+      padding: 0; /* Remove default padding */
     }
 
-    .condition-accordion-content {
+    .accordion-content.active,
+    .condition-accordion-content.active {
+      max-height: none;
+      padding: 0; /* Remove conflicting padding */
+    }
+
+    /* Update the container styles to be more specific */
+    .accordion-content-container {
+      background: white;
+      margin: 15px; /* Consistent margin */
+      padding: 20px;
+      border-radius: 4px;
+    }
+
+    /* Consolidate checkbox styles */
+    .condition-checkbox,
+    .product-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 2px 0;
+    }
+
+    .condition-checkbox input[type="checkbox"],
+    .product-checkbox input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+
+    .condition-checkbox label,
+    .product-checkbox label {
+      font-size: 12px;
+      color: #434343;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    /* Add these styles to make selected labels bold */
+    #ConditionsReport input[type="radio"]:checked + label,
+    #SideEffectsReport input[type="radio"]:checked + label,
+    #UndesiredEffectsReport input[type="checkbox"]:checked + label {
+      font-weight: bold;
+    }
+
+    /* My Products Accordion Styles */
+    .myproducts-accordion {
+      width: 90%;
+      margin: 20px auto;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .myproducts-accordion-item {
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .myproducts-accordion-header {
+      background: #f8f8f8;
+      padding: 15px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #434343;
+      padding-top: 16px;
+      padding-bottom: 12px;
+    }
+
+    .myproducts-accordion-header span:first-child {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .myproducts-accordion-content {
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease-out;
@@ -247,66 +259,136 @@
       padding: 0 15px;
     }
 
-    .condition-accordion-content.active {
-      max-height: 1000px;
+    .myproducts-accordion-content.active {
+      max-height: none;
       padding: 15px;
       padding-bottom: 30px;
     }
 
-    .product-checkbox {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      white-space: nowrap;
-      padding: 2px 0; /* Matches condition checkbox padding */
+    /* New styles for report grids */
+    #ConditionsReport {
+      display: grid;
+      grid-template-columns: 270px repeat(4, 1fr); /* Make first column width explicit */
+      gap: 8px;
+      justify-content: left;
+      width: 100%;
+      padding: 10px;
     }
 
-    .product-checkbox input[type="checkbox"] {
+    #ConditionsReport .grid-column {
+      min-width: 150px;
+    }
+
+    #ConditionsReport input[type="checkbox"],
+    #ConditionsReport input[type="radio"] {
       width: 16px;
       height: 16px;
       margin: 0;
     }
 
-    .product-checkbox label {
-      font-size: 14px;
-      color: #434343;
+    #ConditionsReport label {
       white-space: nowrap;
+      font-family: 'Poppins', sans-serif;
     }
 
-    /* Ensure MyProducts accordion expands properly */
-    #myproducts-accordion .accordion-content.active {
-      max-height: none;
-      height: auto;
-    }
-
-    /* New styles for products grid */
-    .products-grid {
+    #SideEffectsReport {
       display: grid;
-      grid-template-columns: repeat(auto-fill, 300px);
+      grid-template-columns: 270px repeat(3, 1fr); /* First column matches ConditionsReport width */
       gap: 8px;
-      justify-content: center;
+      justify-content: start;
       width: 100%;
       padding: 10px;
+      border-top: 1px solid #ddd;
+      margin-top: 20px;
+      padding-top: 20px;
+      margin-bottom: 5px; 
     }
 
-    .product-checkbox {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    #SideEffectsReport .grid-column {
+      min-width: 150px;
+    }
+
+    #SideEffectsReport input[type="checkbox"],
+    #SideEffectsReport input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+
+    #SideEffectsReport label {
       white-space: nowrap;
-      padding: 2px 0;
-      min-width: 280px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+    }
+
+    #UndesiredEffectsReport {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      justify-content: left;
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px; 
+    }
+
+    #UndesiredEffectsReport .grid-column {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #UndesiredEffectsReport input[type="checkbox"],
+    #UndesiredEffectsReport input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+    }
+
+    #UndesiredEffectsReport label {
+      white-space: nowrap;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+    }
+
+    /* Remove the generic .report-grid style since we now have specific styles */
+    .report-grid {
+      display: none; /* or remove this class entirely */
+    }
+
+    /* Update the condition entry styling in the ConditionsReport grid */
+    #ConditionsReport .grid-column div {
+      padding: 2px 0; /* Matches the padding used in condition-checkbox and product-checkbox */
+    }
+
+    #ConditionsReport span {
+      font-family: 'Poppins', sans-serif; /* Match the font family used in other accordions */
+    }
+
+    /* Styles for the effects notice text */
+    .effects-notice {
+      font-size: 14pt;
+      margin: 0px; /* Reset margin */
+      padding: 5px 0; /* Reduce padding, only vertical padding as needed */
+      color: #666;
+      font-style: italic;
+      display: block;
+    }
+
+    /* Add a similar text style as the effects notice for the Conditions Report title */
+    .conditions-title {
+      font-style: italic;
+      color: #666; /* Matches the effects notice color */
     }
   </style>
 </head>
 <body>
   <div id="top-section">
-    <h1 class="header-text">
+    <h1 class="page-title">
       Crowd sourcing answers. Which of the medical cannabis options available in New Zealand work best for your
       condition?
-      <span style="font-size: 24px">-   Currently displaying completely random data</span>
+      <span style="font-size: 24px">- Currently displaying completely random data</span>
     </h1>
-    
+
     <div class="condition-accordion">
       <div class="condition-accordion-item">
         <div class="condition-accordion-header">
@@ -320,7 +402,7 @@
       </div>
     </div>
 
-    <div class="subheader-text" style="margin-bottom: 20px;">
+    <div class="section-title" style="margin-bottom: 20px;">
       My medical cannabis products
     </div>
 
@@ -329,12 +411,12 @@
     </div>
 
     <!-- MyProducts accordion -->
-    <div class="accordion" id="myproducts-accordion">
-      <div class="accordion-item">
-        <div class="accordion-header">
+    <div class="myproducts-accordion">
+      <div class="myproducts-accordion-item">
+        <div class="myproducts-accordion-header">
           <span>Add a product +</span>
         </div>
-        <div class="accordion-content">
+        <div class="myproducts-accordion-content">
           <div class="products-grid">
             <!-- Will be populated with products -->
           </div>
@@ -352,6 +434,25 @@
   </div>
 
   <script>
+    function updateUndesiredEffectsVisibility(show) {
+      const undesiredEffectsReports = document.querySelectorAll('#UndesiredEffectsReport');
+      const effectsNotices = document.querySelectorAll('.effects-notice');
+      
+      undesiredEffectsReports.forEach(report => {
+        if (report) {
+          report.style.display = show ? 'grid' : 'none';
+        }
+      });
+      
+      effectsNotices.forEach(notice => {
+        if (notice) {
+          notice.style.display = show ? 'block' : 'none';
+        }
+      });
+    }
+
+    const effectivenessOptions = ["Not effective", "Mild benefit", "Good benefit", "This is exactly what I need"];
+
     async function fetchSpreadsheetData(url) {
       try {
         console.log('Fetching data from:', url);
@@ -363,20 +464,20 @@
             'Cache-Control': 'no-cache'
           }
         });
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const html = await response.text();
         console.log('Received HTML response length:', html.length);
-        
+
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        
+
         const title = doc.querySelector('title')?.textContent || '';
         const table = doc.querySelector('table');
-        
+
         if (!table) {
           console.error('No table found in response HTML');
           throw new Error('No table found in spreadsheet data');
@@ -384,7 +485,7 @@
 
         const rows = table.querySelectorAll('tr');
         console.log('Found rows:', rows.length);
-        
+
         if (!rows || rows.length === 0) {
           console.error('No rows found in table');
           return {
@@ -404,7 +505,7 @@
             cell.replaceWith(th);
           });
         }
-        
+
         Array.from(rows).forEach((row, index) => {
           if (index === 0) return;
         });
@@ -549,7 +650,7 @@
       const effectiveness = [];
       const effectTypes = [
         "Not effective",
-        "Mild benefit",
+        "Mild benefit", 
         "Good benefit", 
         "This is exactly what I need"
       ];
@@ -600,28 +701,293 @@
 
     function loadSelectionsFromLocalStorage() {
       // Load and apply selected conditions
-      try {
-        const selectedConditions = JSON.parse(localStorage.getItem('selectedConditions')) || [];
-        document.querySelectorAll('.condition-checkbox input').forEach(checkbox => {
-          if (selectedConditions.includes(checkbox.value)) {
-            checkbox.checked = true;
-          }
-        });
-      } catch (e) {
-        console.error('Error loading conditions from localStorage:', e);
-      }
+      const selectedConditions = getFromLocalStorage('selectedConditions');
+      document.querySelectorAll('.condition-checkbox input').forEach(checkbox => {
+        if (selectedConditions.includes(checkbox.value)) {
+          checkbox.checked = true;
+        }
+      });
 
       // Load and apply selected products
+      const selectedProducts = getFromLocalStorage('selectedProducts');
+      document.querySelectorAll('.product-checkbox input').forEach(checkbox => {
+        if (selectedProducts.includes(checkbox.value)) {
+          checkbox.checked = true;
+        }
+      });
+      
+      updateConditionsReport();
+    }
+
+    function getFromLocalStorage(key) {
       try {
-        const selectedProducts = JSON.parse(localStorage.getItem('selectedProducts')) || [];
-        document.querySelectorAll('.product-checkbox input').forEach(checkbox => {
-          if (selectedProducts.includes(checkbox.value)) {
-            checkbox.checked = true;
-          }
-        });
+        return JSON.parse(localStorage.getItem(key)) || [];
       } catch (e) {
-        console.error('Error loading products from localStorage:', e);
+        console.error(`Error loading ${key} from localStorage:`, e);
+        return [];
       }
+    }
+
+    function updateAccordionState(content, savedItems) {
+      if (savedItems.length === 0 && content) {
+        content.classList.add('active');
+      }
+    }
+
+    function addCheckboxEventListener(checkbox, updateFn) {
+      checkbox.addEventListener('change', function() {
+        if (!this.checked) {
+          if (confirm("Warning: Unselecting will delete your report. Are you sure?")) {
+            updateFn();
+            updateConditionsReport(); 
+            saveSelectionsToLocalStorage();
+          } else {
+            this.checked = true;
+          }
+        } else {
+          updateFn();
+          updateConditionsReport(); 
+          saveSelectionsToLocalStorage();
+        }
+      });
+    }
+
+    function updateConditionsReport(productName = "this product") {
+        const selectedConditions = Array.from(document.querySelectorAll('.condition-checkbox input:checked'))
+            .map(checkbox => checkbox.value);
+
+        console.log('Updating Conditions Report with selected conditions:', selectedConditions);
+        console.log('Product name passed to updateConditionsReport:', productName);
+
+        const conditionsReport = document.querySelectorAll('#ConditionsReport');
+
+        conditionsReport.forEach(report => {
+            report.innerHTML = ''; // Clear existing content
+
+            // Remove any existing title that might be present
+            const existingTitle = report.parentElement.querySelector('.conditions-title');
+            if (existingTitle) {
+                existingTitle.remove();
+            }
+
+            // Add the title for the Conditions Report with proper product name
+            const title = document.createElement('div');
+            title.className = 'conditions-title';
+            title.style.fontSize = '14pt';
+            title.style.padding = '5px 0';
+            title.style.margin = '5px 0';
+            title.innerHTML = `Please rate how effective <strong>${productName || 'this product'}</strong> is for each of your conditions`;
+            report.parentElement.insertBefore(title, report);
+
+            const conditionsColumn = document.createElement('div');
+            conditionsColumn.className = 'grid-column';
+            conditionsColumn.innerHTML = selectedConditions.map(condition => `
+                <div>
+                    <span style="font-size: 14px; font-weight: bold;">${condition}</span>
+                </div>
+            `).join('');
+            report.appendChild(conditionsColumn);
+
+            effectivenessOptions.forEach(option => {
+                const effectivenessColumn = document.createElement('div');
+                effectivenessColumn.className = 'grid-column';
+                effectivenessColumn.innerHTML = selectedConditions.map(condition => `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" 
+                               id="${condition}-${option.replace(/\s+/g, '-')}" 
+                               name="${condition}-effectiveness" 
+                               value="${option}">
+                        <label for="${condition}-${option.replace(/\s+/g, '-')}" style="font-size: 14px;">
+                            ${option}
+                        </label>
+                    </div>
+                `).join('');
+                report.appendChild(effectivenessColumn);
+            });
+
+            console.log('Conditions columns and effectiveness options added.');
+
+            // Update the radio event listener code
+            const radios = report.querySelectorAll('input[type="radio"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const accordionContent = this.closest('.accordion-content');
+                    
+                    if (this.value === "Only acceptable side effects") {
+                        // Check if any other option was previously selected
+                        const previousSelection = accordionContent.querySelector('input[name="side-effects"]:checked');
+                        if (previousSelection && 
+                            (previousSelection.value === "Some uncomfortable side effects" || 
+                             previousSelection.value === "Side effects prohibit use")) {
+                            
+                            if (!confirm("Are you sure you want to delete your side effects report?")) {
+                                // If user cancels, prevent the change and keep previous selection
+                                this.checked = false;
+                                previousSelection.checked = true;
+                                return;
+                            }
+                        }
+                    }
+                    
+                    const showUndesiredEffects = this.value === "Some uncomfortable side effects" || 
+                                                this.value === "Side effects prohibit use";
+                    
+                    // Find and update visibility for this specific accordion's elements
+                    const thisUndesiredEffects = accordionContent.querySelector('#UndesiredEffectsReport');
+                    const thisEffectsNotice = accordionContent.querySelector('.effects-notice');
+                    
+                    if (thisUndesiredEffects) {
+                        thisUndesiredEffects.style.display = showUndesiredEffects ? 'grid' : 'none';
+                    }
+                    if (thisEffectsNotice) {
+                        thisEffectsNotice.style.display = showUndesiredEffects ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+
+        // Ensure padding and margins are controlled
+        const sideEffectsReport = document.querySelectorAll('#SideEffectsReport');
+
+        sideEffectsReport.forEach(reportSide => {
+            reportSide.innerHTML = ''; // Clear existing content
+
+            // For side effects report
+            const labelColumn = document.createElement('div');
+            labelColumn.className = 'grid-column';
+            labelColumn.innerHTML = `
+                <div>
+                    <span style="font-size: 14px; font-weight: bold;">Side effects</span>
+                </div>
+            `;
+            reportSide.appendChild(labelColumn);
+
+            const sideEffectOptions = [
+                "Only acceptable side effects",
+                "Some uncomfortable side effects",
+                "Side effects prohibit use"
+            ];
+
+            sideEffectOptions.forEach(option => {
+                const optionColumn = document.createElement('div');
+                optionColumn.className = 'grid-column';
+                optionColumn.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" 
+                               id="side-effect-${option.replace(/\s+/g, '-')}" 
+                               name="side-effects" 
+                               value="${option}">
+                        <label for="side-effect-${option.replace(/\s+/g, '-')}">
+                            ${option}
+                        </label>
+                    </div>
+                `;
+                reportSide.appendChild(optionColumn);
+
+                // Add this new event listener code after appending the column
+                const radio = optionColumn.querySelector('input[type="radio"]');
+                radio.addEventListener('change', function() {
+                    const accordionContent = this.closest('.accordion-content');
+                    const showUndesiredEffects = this.value === "Some uncomfortable side effects" || 
+                                                this.value === "Side effects prohibit use";
+                    
+                    // Add warning when switching to "Only acceptable side effects"
+                    if (this.value === "Only acceptable side effects") {
+                        const hasUncomfortableEffects = accordionContent.querySelector('input[name="side-effects"][value="Some uncomfortable side effects"]:checked, input[name="side-effects"][value="Side effects prohibit use"]:checked');
+                        
+                        if (hasUncomfortableEffects) {
+                            if (!confirm("Are you sure you want to delete your side effects report?")) {
+                                // If user cancels, revert to previous selection
+                                hasUncomfortableEffects.checked = true;
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // Find and update visibility for this specific accordion's elements
+                    const thisUndesiredEffects = accordionContent.querySelector('#UndesiredEffectsReport');
+                    const thisEffectsNotice = accordionContent.querySelector('.effects-notice');
+                    
+                    if (thisUndesiredEffects) {
+                        thisUndesiredEffects.style.display = showUndesiredEffects ? 'grid' : 'none';
+                    }
+                    if (thisEffectsNotice) {
+                        thisEffectsNotice.style.display = showUndesiredEffects ? 'block' : 'none';
+                    }
+                });
+            });
+
+            console.log('Side effects columns added.');
+
+            const existingText = reportSide.parentElement.querySelector('.effects-notice');
+            if (existingText) {
+                existingText.remove();
+                console.log('Existing effects-notice removed.');
+            }
+
+            const textBetweenGrids = document.createElement('div');
+            textBetweenGrids.className = 'effects-notice';
+            textBetweenGrids.textContent = "Please only report effects that impact your decision to use this product";
+            textBetweenGrids.style.fontSize = '14pt';
+            textBetweenGrids.style.margin = '5px 0'; 
+            textBetweenGrids.style.padding = '5px 0'; 
+            textBetweenGrids.style.display = 'none'; // Initially hide the text
+
+            reportSide.parentElement.insertBefore(textBetweenGrids, reportSide.nextSibling);
+            console.log('Effects notice text inserted.');
+        });
+
+        console.log('Reports updated successfully, whitespace reduction applied.');
+    }
+
+    function populateUndesiredEffectsReport(data2Table) {
+      const undesiredEffectsReport = document.querySelectorAll('#UndesiredEffectsReport');
+      if (!data2Table || !undesiredEffectsReport) {
+        console.error('UndesiredEffectsReport or data2Table not found.');
+        return;
+      }
+
+      undesiredEffectsReport.forEach(report => {
+        report.innerHTML = '';
+
+        const rows = Array.from(data2Table.querySelectorAll('tr'));
+        const undesiredEffects = [];
+        
+        for (let i = 2; i < rows.length; i++) {
+          const cells = rows[i].querySelectorAll('td');
+          if (cells.length > 1) {
+            const effect = cells[1].textContent.trim();
+            if (effect && effect.toLowerCase() !== "undesired effects") {
+              // Only add if not already in array to prevent duplicates
+              if (!undesiredEffects.includes(effect)) {
+                undesiredEffects.push(effect);
+              }
+            }
+          }
+        }
+
+        for (let colIndex = 0; colIndex < 4; colIndex++) {
+          const startIndex = colIndex * 7; // Number of items per column in Undesired effects grid
+          const columnEffects = undesiredEffects.slice(startIndex, startIndex + 6);
+          
+          if (columnEffects.length > 0) {
+            const column = document.createElement('div');
+            column.className = 'grid-column';
+            column.innerHTML = columnEffects.map((effect, i) => `
+              <div class="condition-checkbox">
+                <input type="checkbox" 
+                  id="undesired-effect-${startIndex + i}-${effect.replace(/\s+/g, '-')}" 
+                  name="undesired-effect" 
+                  value="undesired-${effect}">
+                <label for="undesired-effect-${startIndex + i}-${effect.replace(/\s+/g, '-')}">${effect}</label>
+              </div>
+            `).join('');
+            report.appendChild(column);
+          }
+        }
+      });
+
+      console.log('Undesired effects report populated.');
     }
 
     window.addEventListener('resize', function() {
@@ -656,18 +1022,21 @@
             <h2>Products Data</h2>
             ${data1.tableHtml}
           `;
+          console.log('Spreadsheet1 loaded.');
         }
         if (spreadsheet2El) {
           spreadsheet2El.innerHTML = `
             <h2>Lists Data</h2>
             ${data2.tableHtml}
           `;
+          console.log('Spreadsheet2 loaded.');
         }
         if (spreadsheet3El) {
           spreadsheet3El.innerHTML = `
             <h2>Effectiveness Data</h2>
             ${data3.tableHtml}
           `;
+          console.log('Spreadsheet3 loaded.');
         }
         
         loadingElement.style.display = 'none';
@@ -688,6 +1057,8 @@
               }
             }
           }
+
+          console.log('Conditions extracted:', conditions);
 
           // Create the grid with exactly 4 columns of 5 items each
           const gridHTML = `
@@ -728,82 +1099,72 @@
           `;
           
           conditionsGrid.innerHTML = gridHTML;
+          console.log('Conditions grid populated.');
 
           // Add event listeners to checkboxes
           conditionsGrid.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-              if (!this.checked) {
-                if (confirm("Warning: Unselecting a condition will delete all your reports for that condition. Are you sure you want to continue?")) {
-                  updateProductDisplay();
-                  saveSelectionsToLocalStorage();
-                } else {
-                  this.checked = true;
-                }
-              } else {
-                updateProductDisplay();
-                saveSelectionsToLocalStorage();
-              }
-            });
+            addCheckboxEventListener(checkbox, updateProductDisplay);
           });
         }
 
-        const myProductsAccordion = document.getElementById('myproducts-accordion');
+        const myProductsAccordion = document.querySelector('.myproducts-accordion');
         if (myProductsAccordion && data1.table) {
-          myProductsAccordion.querySelector('.products-grid').innerHTML = ''; // Start with empty product grid
-
           const productsGrid = myProductsAccordion.querySelector('.products-grid');
           const tableRows = Array.from(data1.table.querySelectorAll('tr'));
           
-          // Update the container styling
-          productsGrid.style.display = 'grid';
-          productsGrid.style.gridTemplateColumns = 'repeat(auto-fill, 300px)';
-          productsGrid.style.gap = '8px';
-          productsGrid.style.justifyContent = 'center';
-          productsGrid.style.width = '100%';
-          productsGrid.style.padding = '10px';
+          // Clear existing content
+          productsGrid.innerHTML = '';
 
-          for (let i = 2; i < tableRows.length; i++) { 
+          // Collect all valid products first
+          const products = [];
+          for (let i = 2; i < tableRows.length; i++) {
             const cells = tableRows[i].querySelectorAll('td');
             if (cells.length >= 1) {
               const productName = cells[0].textContent.trim();
               if (productName && productName !== "") {
-                const checkboxDiv = document.createElement('div');
-                checkboxDiv.className = 'product-checkbox';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `product-${i}`;
-                checkbox.value = productName;
-                
-                checkbox.addEventListener('change', function() {
-                  if (!this.checked) {
-                    if (confirm("Warning: Unselecting a product will delete your report for that product. Are you sure you want to continue?")) {
-                      updateProductAccordionVisibility();
-                      saveSelectionsToLocalStorage();
-                    } else {
-                      this.checked = true;
-                    }
-                  } else {
-                    updateProductAccordionVisibility();
-                    saveSelectionsToLocalStorage();
-                  }
-                });
-                
-                const label = document.createElement('label');
-                label.htmlFor = `product-${i}`;
-                label.textContent = productName;
-                
-                checkboxDiv.appendChild(checkbox);
-                checkboxDiv.appendChild(label);
-                productsGrid.appendChild(checkboxDiv);
+                products.push(productName);
               }
             }
           }
-          
-          // Continue with existing product accordion items using the same tableRows variable
-          const accordion = document.getElementById('product-accordion');
-          accordion.innerHTML = ''; // Start with empty product accordion
 
+          console.log('Products extracted:', products);
+
+          // Calculate items per column (ceiling division to handle uneven distribution)
+          const itemsPerColumn = Math.ceil(products.length / 4);
+
+          // Create columns
+          const columns = Array.from({ length: 4 }, (_, colIndex) => {
+            const startIdx = colIndex * itemsPerColumn;
+            const colProducts = products.slice(startIdx, startIdx + itemsPerColumn);
+            
+            return `
+              <div class="grid-column">
+                ${colProducts.map((product, i) => `
+                  <div class="product-checkbox">
+                    <input type="checkbox" id="product-${startIdx + i}" value="${product}">
+                    <label for="product-${startIdx + i}">${product}</label>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }).join('');
+
+          productsGrid.innerHTML = columns;
+          console.log('Products grid populated.');
+
+          // Add event listeners to checkboxes
+          productsGrid.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            addCheckboxEventListener(checkbox, updateProductAccordionVisibility);
+          });
+        }
+
+        const accordion = document.getElementById('product-accordion');
+        accordion.innerHTML = ''; // Start with empty product accordion
+
+        // Get the table rows from data1
+        if (data1.table) {
+          const tableRows = Array.from(data1.table.querySelectorAll('tr'));
+          
           for (let i = 2; i < tableRows.length; i++) { 
             const cells = tableRows[i].querySelectorAll('td');
             if (cells.length >= 1) {
@@ -832,7 +1193,11 @@
                       </div>
                     </div>
                     <div class="accordion-content" style="background-color: ${backgroundColor}">
-                      <!-- Content will be empty now that charts are removed -->
+                      <div class="accordion-content-container">
+                        <div id="ConditionsReport"></div>
+                        <div id="SideEffectsReport"></div>
+                        <div id="UndesiredEffectsReport"></div>
+                      </div>
                     </div>
                   </div>
                 `;
@@ -840,34 +1205,47 @@
               }
             }
           }
-          
-          const accordionHeaders = document.querySelectorAll('.accordion-header');
-          accordionHeaders.forEach(header => {
-            header.addEventListener('click', function() {
-              const content = this.nextElementSibling;
-              const allContents = document.querySelectorAll('.accordion-content');
-              
-              allContents.forEach(otherContent => {
-                if (otherContent !== content && otherContent.classList.contains('active')) {
-                  otherContent.classList.remove('active');
-                }
-              });
-              
-              content.classList.toggle('active');
-            });
-          });
-        }
 
-        const myProductsContent = myProductsAccordion.querySelector('.accordion-content');
-        const addProductHeader = myProductsAccordion.querySelector('.accordion-header');
+          console.log('Product accordion items added.');
+        }
+        
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+        accordionHeaders.forEach(header => {
+          header.addEventListener('click', function() {
+            const content = this.nextElementSibling;
+            const allContents = document.querySelectorAll('.accordion-content');
+            
+            allContents.forEach(otherContent => {
+              if (otherContent !== content && otherContent.classList.contains('active')) {
+                otherContent.classList.remove('active');
+              }
+            });
+            
+            content.classList.toggle('active');
+            
+            // Get product name from header and update report
+            const productNameSpan = this.querySelector('span:first-child');
+            if (productNameSpan) {
+                const productName = productNameSpan.textContent.trim();
+                updateConditionsReport(productName);
+            }
+          });
+        });
+
+        const myProductsContent = myProductsAccordion.querySelector('.myproducts-accordion-content');
+        const addProductHeader = myProductsAccordion.querySelector('.myproducts-accordion-header');
 
         // Check local storage first for any saved selections
-        const savedProducts = JSON.parse(localStorage.getItem('selectedProducts')) || [];
+        const savedProducts = getFromLocalStorage('selectedProducts');
 
         // If no products were saved in local storage, open the Add Product accordion
-        if (savedProducts.length === 0 && myProductsContent) {
-          myProductsContent.classList.add('active');
-        }
+        updateAccordionState(myProductsContent, savedProducts);
+
+        // Call populateUndesiredEffectsReport for the newly loaded data
+        populateUndesiredEffectsReport(data2.table);
+        updateUndesiredEffectsVisibility(false); // Initial hide call
+
+        console.log('All spreadsheets loaded and processed.');
 
       } catch (error) {
         console.error('Error loading spreadsheets:', error);
@@ -883,15 +1261,32 @@
       
       if (header && content) {
         // Check localStorage for any saved conditions
-        const savedConditions = JSON.parse(localStorage.getItem('selectedConditions')) || [];
+        const savedConditions = getFromLocalStorage('selectedConditions');
         
         // Only add 'active' class if no conditions were previously selected
-        if (savedConditions.length === 0) {
-          content.classList.add('active');
-        }
+        updateAccordionState(content, savedConditions);
         
         header.addEventListener('click', () => {
           content.classList.toggle('active');
+          console.log('Condition accordion toggled.');
+        });
+      }
+    }
+
+    function initMyProductsAccordion() {
+      const header = document.querySelector('.myproducts-accordion-header');
+      const content = document.querySelector('.myproducts-accordion-content');
+      
+      if (header && content) {
+        // Check localStorage for any saved products
+        const savedProducts = getFromLocalStorage('selectedProducts');
+        
+        // Only add 'active' class if no products were previously selected
+        updateAccordionState(content, savedProducts);
+        
+        header.addEventListener('click', () => {
+          content.classList.toggle('active');
+          console.log('MyProducts accordion toggled.');
         });
       }
     }
@@ -904,6 +1299,8 @@
       document.querySelectorAll('.selected-condition').forEach(span => {
         span.textContent = selectedConditions.join(', ');
       });
+
+      console.log('Product display updated with selected conditions:', selectedConditions);
     }
 
     function updateProductAccordionVisibility() {
@@ -918,27 +1315,27 @@
         if (productHeader) {
           const productName = productHeader.textContent.trim();
           item.style.display = selectedProducts.includes(productName) ? 'block' : 'none';
+          console.log(`Product "${productName}" visibility set to ${selectedProducts.includes(productName) ? 'block' : 'none'}`);
         }
       });
 
       // Show/hide the entire product accordion based on whether there are any selected products
       accordion.style.display = selectedProducts.length > 0 ? 'block' : 'none';
-
-      // Move visible items to the top
-      Array.from(accordionItems)
-        .filter(item => item.style.display === 'block')
-        .forEach(item => accordion.appendChild(item));
+      console.log(`Product accordion display set to ${selectedProducts.length > 0 ? 'block' : 'none'}`);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       const productAccordion = document.getElementById('product-accordion');
       productAccordion.style.display = 'none'; // Initially hide the product accordion
+      console.log('Product accordion initially hidden.');
       
       initConditionAccordion();
+      initMyProductsAccordion(); 
       loadSpreadsheets().then(() => {
         loadSelectionsFromLocalStorage();
         updateProductDisplay();
         updateProductAccordionVisibility();
+        console.log('Selections loaded from localStorage and updates applied.');
       });
     });
   </script>
