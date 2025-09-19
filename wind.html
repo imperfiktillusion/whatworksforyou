@@ -1,114 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Wellington Monthly Wind Speeds (Embedded Data)</title>
+  <meta charset="utf-8" />
+  <title>Wellington — Monthly Wind (1980→present)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:20px; }
+    #controls { margin-bottom:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    label { font-size:14px; }
+    #status { font-size:13px; color:#333; margin-left:6px; }
+    textarea { width:100%; height:140px; font-family:monospace; }
+    #chart { width:100%; max-width:1200px; height:600px; }
+    .small { font-size:12px; color:#555; }
+    button { padding:6px 10px; }
+  </style>
 </head>
-<body style="font-family:Arial, sans-serif; margin:20px;">
-  <h2>Wellington (Airport) — Monthly Mean Wind Speeds (Embedded Data)</h2>
-  <div id="chart" style="width:100%;max-width:1200px;height:600px;"></div>
+<body>
+  <h2>Wellington (Airport area) — Monthly wind (1980 → present)</h2>
 
-  <script>
-    // Embedded sample data: a few years for demonstration
-    // Replace / extend with full dataset when available
-    const data = [
-      { date: "2020-01-01", wspd: 27.1 },
-      { date: "2020-02-01", wspd: 25.8 },
-      { date: "2020-03-01", wspd: 23.4 },
-      { date: "2020-04-01", wspd: 22.0 },
-      { date: "2020-05-01", wspd: 25.5 },
-      { date: "2020-06-01", wspd: 28.2 },
-      { date: "2020-07-01", wspd: 30.3 },
-      { date: "2020-08-01", wspd: 29.7 },
-      { date: "2020-09-01", wspd: 26.6 },
-      { date: "2020-10-01", wspd: 24.1 },
-      { date: "2020-11-01", wspd: 23.9 },
-      { date: "2020-12-01", wspd: 25.2 },
-      { date: "2021-01-01", wspd: 26.5 },
-      { date: "2021-02-01", wspd: 24.7 },
-      { date: "2021-03-01", wspd: 23.8 },
-      { date: "2021-04-01", wspd: 22.9 },
-      { date: "2021-05-01", wspd: 26.8 },
-      { date: "2021-06-01", wspd: 29.1 },
-      { date: "2021-07-01", wspd: 31.5 },
-      { date: "2021-08-01", wspd: 30.9 },
-      { date: "2021-09-01", wspd: 27.8 },
-      { date: "2021-10-01", wspd: 25.3 },
-      { date: "2021-11-01", wspd: 24.8 },
-      { date: "2021-12-01", wspd: 26.0 },
-      { date: "2022-01-01", wspd: 27.4 },
-      { date: "2022-02-01", wspd: 25.9 },
-      { date: "2022-03-01", wspd: 24.0 },
-      { date: "2022-04-01", wspd: 22.7 },
-      { date: "2022-05-01", wspd: 27.1 },
-      { date: "2022-06-01", wspd: 30.0 },
-      { date: "2022-07-01", wspd: 32.2 },
-      { date: "2022-08-01", wspd: 31.8 },
-      { date: "2022-09-01", wspd: 28.7 },
-      { date: "2022-10-01", wspd: 26.4 },
-      { date: "2022-11-01", wspd: 25.8 },
-      { date: "2022-12-01", wspd: 27.3 },
-      { date: "2023-01-01", wspd: 28.0 },
-      { date: "2023-02-01", wspd: 26.5 },
-      { date: "2023-03-01", wspd: 25.0 },
-      { date: "2023-04-01", wspd: 23.8 },
-      { date: "2023-05-01", wspd: 28.2 },
-      { date: "2023-06-01", wspd: 31.4 },
-      { date: "2023-07-01", wspd: 33.0 },
-      { date: "2023-08-01", wspd: 32.5 },
-      { date: "2023-09-01", wspd: 29.2 },
-      { date: "2023-10-01", wspd: 27.0 },
-      { date: "2023-11-01", wspd: 26.5 },
-      { date: "2023-12-01", wspd: 28.1 },
-      { date: "2024-01-01", wspd: 29.3 },
-      { date: "2024-02-01", wspd: 27.9 },
-      { date: "2024-03-01", wspd: 26.6 },
-      { date: "2024-04-01", wspd: 25.4 },
-      { date: "2024-05-01", wspd: 29.0 },
-      { date: "2024-06-01", wspd: 32.1 },
-      { date: "2024-07-01", wspd: 34.2 },
-      { date: "2024-08-01", wspd: 33.7 },
-      { date: "2024-09-01", wspd: 30.5 }
-      // you can continue with 2024-10,11,12 and 2025 when you get data
-    ];
+  <div id="controls">
+    <div>
+      <label><strong>Data source:</strong></label>
+      <select id="source">
+        <option value="reanalysis" selected>Reanalysis (ERA5 via Open-Meteo) — continuous 1980→present</option>
+        <option value="combined">Reanalysis + (optional) station CSV override</option>
+      </select>
+    </div>
 
-    const dates = data.map(d => d.date);
-    const wspd = data.map(d => d.wspd);
+    <div>
+      <label><strong>Location:</strong></label>
+      <span class="small">Wellington Airport coords (lat: -41.3333, lon: 174.8)</span>
+    </div>
 
-    // Compute 12-month rolling average
-    const roll = wspd.map((v,i) => {
-      const start = Math.max(0, i - 11);
-      const subset = wspd.slice(start, i + 1);
-      const avg = subset.reduce((a,b)=>a+b,0) / subset.length;
-      return parseFloat(avg.toFixed(2));
+    <div>
+      <label><strong>Moving avg:</strong></label>
+      <input id="ma" type="number" value="12" min="1" style="width:70px" /> months
+    </div>
+
+    <div>
+      <button id="btnFetch">Load & Plot (1980 → present)</button>
+      <span id="status"></span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:8px;">
+    <label><strong>Optional:</strong> Paste a station CSV here to override reanalysis where observations exist.<br>
+      Required CSV columns (header row): <code>date,wspd,wpgt</code> where <code>date</code> is YYYY-MM-DD (monthly first-of-month). Example:
+    </label>
+    <pre class="small">date,wspd,wpgt
+2005-01-01,27.3,72.4
+2005-02-01,25.8,61.0
+...</pre>
+
+    <textarea id="stationCsv" placeholder="Paste station CSV here to override reanalysis (optional)"></textarea>
+    <div style="margin-top:6px;">
+      <button id="btnUseCSV">Use pasted CSV (override)</button>
+      <button id="btnClearCSV">Clear pasted CSV</button>
+    </div>
+  </div>
+
+  <div id="chart"></div>
+
+<script>
+(async function(){
+  // Configuration
+  const lat = -41.3333;
+  const lon = 174.8;
+  const start = "1980-01-01";            // start date
+  const end = new Date().toISOString().slice(0,10); // today
+  const archiveBase = "https://archive-api.open-meteo.com/v1/archive";
+
+  // UI elements
+  const btn = document.getElementById('btnFetch');
+  const status = document.getElementById('status');
+  const maInput = document.getElementById('ma');
+  const sourceSelect = document.getElementById('source');
+  const stationCsvArea = document.getElementById('stationCsv');
+  const btnUseCSV = document.getElementById('btnUseCSV');
+  const btnClearCSV = document.getElementById('btnClearCSV');
+
+  let stationData = null; // parsed station CSV override
+
+  function setStatus(msg, warn=false){
+    status.textContent = msg || "";
+    status.style.color = warn ? '#9b2c2c' : '#333';
+  }
+
+  // CSV parser (simple)
+  function parseStationCSV(csvText){
+    const lines = csvText.trim().split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+    if(lines.length < 2) return null;
+    const hdr = lines[0].split(',').map(h=>h.trim().toLowerCase());
+    const idxDate = hdr.indexOf('date');
+    const idxWspd = hdr.indexOf('wspd');
+    const idxWpgt = hdr.indexOf('wpgt');
+    if(idxDate === -1 || idxWspd === -1){
+      throw new Error("CSV must include header columns: date and wspd (wpgt optional)");
+    }
+    const out = {};
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(',').map(c=>c.trim());
+      const d = cols[idxDate];
+      if(!d) continue;
+      const dateKey = d.slice(0,10); // YYYY-MM-DD
+      const wspd = parseFloat(cols[idxWspd]);
+      const wpgt = (idxWpgt !== -1) ? parseFloat(cols[idxWpgt]) : null;
+      out[dateKey] = { date: dateKey, wspd: isNaN(wspd) ? null : wspd, wpgt: (isNaN(wpgt) ? null : wpgt) };
+    }
+    return out; // map keyed by date
+  }
+
+  btnUseCSV.addEventListener('click', () => {
+    try {
+      const txt = stationCsvArea.value;
+      if(!txt.trim()) { stationData = null; setStatus("No CSV provided — using reanalysis only."); return; }
+      stationData = parseStationCSV(txt);
+      setStatus("Station CSV parsed — will override reanalysis where dates match.");
+    } catch (e) {
+      setStatus("CSV parse error: " + e.message, true);
+    }
+  });
+  btnClearCSV.addEventListener('click', () => {
+    stationCsvArea.value = "";
+    stationData = null;
+    setStatus("Cleared pasted CSV.");
+  });
+
+  // fetch reanalysis monthly data from Open-Meteo archive:
+  // Request monthly aggregated variables:
+  // monthly variables: windspeed_10m_mean, windspeed_10m_max
+  async function fetchReanalysisMonthly(){
+    setStatus("Requesting reanalysis monthly data from Open-Meteo...");
+    // Build URL. Use monthly parameters: monthly=windspeed_10m_mean,windspeed_10m_max
+    // docs: https://open-meteo.com/en/docs (archive API accepts monthly=var1,var2)
+    const monthlyVars = "windspeed_10m_mean,windspeed_10m_max";
+    const url = `${archiveBase}?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&start_date=${start}&end_date=${end}&monthly=${monthlyVars}&timezone=UTC&past_days=0&models=era5`;
+    // Note: models param aims to preferentially use ERA5; open-meteo will respond with available monthly aggregated series.
+    const resp = await fetch(url);
+    if(!resp.ok) throw new Error("Open-Meteo request failed: " + resp.status + " " + resp.statusText);
+    const json = await resp.json();
+    if(!json || !json.monthly) throw new Error("Unexpected Open-Meteo response format.");
+    // monthly.time is array of YYYY-MM-DD strings; monthly.windspeed_10m_mean is array (m/s), monthly.windspeed_10m_max is array (m/s)
+    const times = json.monthly.time || [];
+    const meanArr = (json.monthly.windspeed_10m_mean || []);
+    const maxArr  = (json.monthly.windspeed_10m_max || []);
+    // convert to km/h (m/s -> km/h)
+    const records = [];
+    for(let i=0;i<times.length;i++){
+      const t = times[i];
+      const mean = (meanArr[i] === null || meanArr[i] === undefined) ? null : (meanArr[i] * 3.6);
+      const mx = (maxArr[i] === null || maxArr[i] === undefined) ? null : (maxArr[i] * 3.6);
+      records.push({ date: t, wspd_re: mean, wpgt_re: mx });
+    }
+    setStatus(`Reanalysis data loaded: ${records.length} months (1980→present).`);
+    return records;
+  }
+
+  // Combine reanalysis and station override:
+  function combineRecords(reanalysis, stationMap){
+    // reanalysis: array of {date, wspd_re, wpgt_re}
+    // stationMap: object keyed by date with {wspd, wpgt}
+    const combined = reanalysis.map(r => {
+      const key = r.date.slice(0,10);
+      if(stationMap && stationMap[key] && (stationMap[key].wspd !== null && stationMap[key].wspd !== undefined)){
+        // use station observations (assumed in km/h)
+        return { date: key, wspd: stationMap[key].wspd, wpgt: stationMap[key].wpgt !== null ? stationMap[key].wpgt : r.wpgt_re, source: 'station' };
+      } else {
+        return { date: key, wspd: r.wspd_re, wpgt: r.wpgt_re, source: 'reanalysis' };
+      }
     });
+    return combined;
+  }
 
-    const trace1 = {
-      x: dates,
-      y: wspd,
-      mode: 'lines+markers',
-      name: 'Monthly Mean',
-      line: {color:'steelblue'},
-      marker: {size:4}
+  // compute moving average (n months) on an array of numeric values (null-safe)
+  function movingAvg(values, n){
+    const out = [];
+    for(let i=0;i<values.length;i++){
+      const start = Math.max(0, i - (n-1));
+      let sum = 0, cnt = 0;
+      for(let j=start;j<=i;j++){
+        const v = values[j];
+        if(v !== null && v !== undefined && !Number.isNaN(v)){ sum += v; cnt++; }
+      }
+      out.push(cnt>0 ? sum/cnt : null);
+    }
+    return out;
+  }
+
+  // Plot with Plotly
+  function plotSeries(records, maMonths){
+    const dates = records.map(r => r.date);
+    const wspd = records.map(r => (r.wspd === null ? NaN : r.wspd));
+    const wpgt = records.map(r => (r.wpgt === null ? NaN : r.wpgt));
+    const wspdMA = movingAvg(wspd, maMonths);
+
+    // identify 2025 mask for shading
+    const y2025start = "2025-01-01", y2025end = "2025-12-01";
+    const shapes = [{
+      type: 'rect',
+      xref: 'x', yref: 'paper',
+      x0: y2025start, x1: y2025end,
+      y0: 0, y1: 1,
+      fillcolor: 'rgba(200,200,200,0.08)', line: {width:0}
+    }];
+
+    const trace_wspd = {
+      x: dates, y: wspd,
+      name: 'Monthly mean (km/h)',
+      mode: 'lines+markers', marker:{size:4}, line:{width:1, color:'steelblue'},
+      hovertemplate: '%{x}<br>Mean: %{y:.1f} km/h<extra></extra>'
     };
-
-    const trace2 = {
-      x: dates,
-      y: roll,
-      mode: 'lines',
-      name: '12-Month Moving Avg',
-      line: {color:'darkorange', width:2}
+    const trace_ma = {
+      x: dates, y: wspdMA,
+      name: `${maMonths}-month moving avg`,
+      mode: 'lines', line:{width:2, color:'orange'},
+      hovertemplate: '%{x}<br>MA: %{y:.1f} km/h<extra></extra>'
+    };
+    const trace_gust = {
+      x: dates, y: wpgt,
+      name: 'Monthly max (gust proxy) (km/h)',
+      mode: 'lines', line:{dash:'dot', width:1.5, color:'darkred'},
+      hovertemplate: '%{x}<br>Max: %{y:.1f} km/h<extra></extra>'
     };
 
     const layout = {
-      title: 'Wellington Monthly Mean Wind Speeds (km/h)',
-      xaxis: { title: 'Year' },
-      yaxis: { title: 'Wind Speed (km/h)' },
-      legend: { orientation: 'h', x:0, y:1.1 }
+      title: 'Wellington — Monthly wind (1980 → present); reanalysis (ERA5) converted to km/h',
+      xaxis: { title: 'Year', rangeselector: {buttons:[
+        {count: 5, label:'5y', step:'year', stepmode:'backward'},
+        {count:10, label:'10y', step:'year', stepmode:'backward'},
+        {count:20, label:'20y', step:'year', stepmode:'backward'},
+        {step:'all'}
+      ]}, rangeslider:{visible:true} },
+      yaxis: { title: 'Wind (km/h)' },
+      legend: { orientation:'h', x:0, y:1.07 },
+      shapes: shapes,
+      margin: { t:70, b:60, l:60, r:20 }
     };
 
-    Plotly.newPlot('chart', [trace1, trace2], layout);
-  </script>
+    Plotly.newPlot('chart', [trace_wspd, trace_ma, trace_gust], layout, {responsive:true});
+  }
+
+  // Main load & plot
+  btn.addEventListener('click', async ()=>{
+    setStatus("Starting data load...");
+    try {
+      // if user selected combined and has pasted csv, parse it
+      let stationMap = null;
+      if(sourceSelect.value === 'combined'){
+        const txt = stationCsvArea.value || "";
+        if(txt.trim()){
+          try {
+            stationMap = parseStationCSV(txt);
+            setStatus("Parsed station CSV — will combine with reanalysis (station overrides reanalysis where dates match).");
+          } catch (err) {
+            setStatus("CSV parse error: " + err.message, true);
+            return;
+          }
+        } else {
+          setStatus("No station CSV pasted — proceeding with reanalysis only.");
+        }
+      } else {
+        setStatus("Using reanalysis only (no station override).");
+      }
+
+      // Fetch reanalysis monthly series
+      const reanalysis = await fetchReanalysisMonthly(); // array of {date,wspd_re,wpgt_re}
+      // combine (station override if provided)
+      const combined = combineRecords(reanalysis, stationMap);
+
+      // compute ma
+      const ma = Math.max(1, parseInt(maInput.value) || 12);
+
+      // Show a quick short table of counts
+      let obsCount = 0;
+      if(stationMap) {
+        for(const k of Object.keys(stationMap)) {
+          if(stationMap[k].wspd !== null && stationMap[k].wspd !== undefined) obsCount++;
+        }
+      }
+      setStatus(`Plotting ${combined.length} months. Station override months: ${obsCount}.`);
+
+      plotSeries(combined, ma);
+    } catch (err){
+      setStatus("Error: " + err.message, true);
+      console.error(err);
+      alert("Error fetching or plotting data: " + err.message + "\nSee console for details.");
+    }
+  });
+
+  // Optional: auto-click load on open
+  // btn.click();
+
+})();
+</script>
 </body>
 </html>
