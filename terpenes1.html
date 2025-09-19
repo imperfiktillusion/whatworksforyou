@@ -116,12 +116,21 @@ function shadeTerpeneColumns() {
 
   terpCols.forEach(colIdx => {
     const cells = Array.from(tbody.rows).map(r => r.cells[colIdx]);
-    const values = cells.map(c => parseFloat(c.dataset.value) || 0);
-    const maxVal = Math.max(...values);
+    
+    // Only consider numeric cells for max calculation
+    const numericCells = cells.filter(c => !isNaN(parseFloat(c.dataset.value)));
+    const values = numericCells.map(c => parseFloat(c.dataset.value));
+    const maxVal = values.length ? Math.max(...values) : 0;
+
     cells.forEach(cell => {
-      const val = parseFloat(cell.dataset.value) || 0;
-      const intensity = maxVal===0 ? 0 : val/maxVal;
-      cell.style.backgroundColor = `rgba(0,128,0,${0.2 + 0.6*intensity})`;
+      const val = parseFloat(cell.dataset.value);
+      if(isNaN(val)) {
+        // Non-numeric cells stay unshaded
+        cell.style.backgroundColor = '';
+      } else {
+        const intensity = maxVal===0 ? 0 : val/maxVal;
+        cell.style.backgroundColor = `rgba(0,128,0,${0.2 + 0.6*intensity})`;
+      }
     });
   });
 }
