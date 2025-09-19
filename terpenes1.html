@@ -6,16 +6,38 @@
 <title>NZ medicinal cannabis — terpene spreadsheet</title>
 <style>
   body{font-family:Inter, Roboto, Arial, sans-serif;padding:18px;background:#f7f7fb;color:#111}
-  h1{font-size:10px;margin-bottom:6px}
-  table{border-collapse:collapse;width:100%;background:#fff;border:1px solid #e1e4ef}
-  th,td{padding:8px 10px;border-bottom:1px solid #eef0f6;text-align:right}
-  th{background:#fafbff;position:sticky;top:0;z-index:2;text-align:center;cursor:pointer}
+  h1{font-size:14px;margin-bottom:6px}
+  table{
+    border-collapse:collapse;
+    width:100%;
+    background:#fff;
+    border:1px solid #e1e4ef;
+    font-size:10px; /* Set table text to 10px */
+  }
+  th, td{
+    padding:8px 10px;
+    border-bottom:1px solid #eef0f6;
+    border-right:1px solid #eef0f6; /* Column divider line */
+    text-align:right;
+  }
+  th:last-child, td:last-child{
+    border-right: none; /* Remove extra border on the last column */
+  }
+  th{
+    background:#fafbff;
+    position:sticky;
+    top:0;
+    z-index:2;
+    text-align:center;
+    cursor:pointer;
+  }
   th:first-child, td:first-child{text-align:left}
   tr:hover td{background:#fcfdff}
   .note{font-size:10px;color:#444;text-align:left}
   .small{font-size:10px;color:#666}
   .num{white-space:nowrap}
 </style>
+
 </head>
 <body>
 <h1>NZ Medicinal Cannabis Terpenes</h1>
