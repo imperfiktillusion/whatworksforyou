@@ -115,16 +115,22 @@ function buildDynamicTable(data) {
   data.forEach(item => Object.keys(item).forEach(k => keysSet.add(k)));
   const keys = Array.from(keysSet);
 
-  // Optional: define order for important columns
-  const preferredOrder = ["product","total","myrcene","alphaPinene","betaPinene","betaCaryophyllene","limonene","terpinolene","alphaHumulene","alphaBisabolol","linalool","ocimene","notes"];
-  keys.sort((a,b)=>{
-    const iA = preferredOrder.indexOf(a);
-    const iB = preferredOrder.indexOf(b);
-    if(iA!==-1 && iB!==-1) return iA-iB;
-    if(iA!==-1) return -1;
-    if(iB!==-1) return 1;
-    return a.localeCompare(b);
-  });
+ // Sort keys: preferred order first, then others alphabetically, but keep 'notes' last
+const keys = Array.from(keysSet);
+const preferredOrder = ["product","total","myrcene","alphaPinene","betaPinene","betaCaryophyllene","limonene","terpinolene","alphaHumulene","alphaBisabolol","linalool","ocimene"];
+
+keys.sort((a,b)=>{
+  if(a === 'notes') return 1;           // 'notes' always last
+  if(b === 'notes') return -1;
+  
+  const iA = preferredOrder.indexOf(a);
+  const iB = preferredOrder.indexOf(b);
+  
+  if(iA!==-1 && iB!==-1) return iA-iB;
+  if(iA!==-1) return -1;
+  if(iB!==-1) return 1;
+  return a.localeCompare(b);
+});
 
   // Build table header
   const trHead = document.createElement('tr');
