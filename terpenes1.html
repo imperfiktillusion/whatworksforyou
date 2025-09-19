@@ -20,7 +20,7 @@
     padding:8px 10px;
     border-bottom:1px solid #eef0f6;
     border-right:1px solid #eef0f6; /* Column divider line */
-    text-align:right;
+    text-align:center;
   }
   th:last-child, td:last-child{
     border-right: none; /* Remove extra border on the last column */
@@ -38,6 +38,12 @@
   .note{font-size:10px;color:#444;text-align:left}
   .small{font-size:10px;color:#666}
   .num{white-space:nowrap}
+
+  .terpene-col {
+    width: 60px; /* adjust as needed */
+    min-width: 60px;
+    max-width: 60px;
+    
 </style>
 
 </head>
@@ -49,17 +55,17 @@
   <thead>
     <tr>
       <th data-type="text">Product</th>
-      <th data-type="num">Total terpenes (% w/w)</th>
-      <th data-type="num">α-Pinene</th>
-      <th data-type="num">β-Pinene</th>
-      <th data-type="num">Myrcene</th>
-      <th data-type="num">β-Caryophyllene</th>
-      <th data-type="num">Limonene</th>
-      <th data-type="num">Terpinolene</th>
-      <th data-type="num">α-Humulene</th>
-      <th data-type="num">α-Bisabolol</th>
-      <th data-type="num">Linalool</th>
-      <th data-type="num">Ocimene</th>
+      <th class="terpene-col" data-type="num">Total terpenes (% w/w)</th>
+      <th class="terpene-col" data-type="num">α-Pinene</th>
+      <th class="terpene-col" data-type="num">β-Pinene</th>
+      <th class="terpene-col" data-type="num">Myrcene</th>
+      <th class="terpene-col" data-type="num">β-Caryophyllene</th>
+      <th class="terpene-col" data-type="num">Limonene</th>
+      <th class="terpene-col" data-type="num">Terpinolene</th>
+      <th class="terpene-col" data-type="num">α-Humulene</th>
+      <th class="terpene-col" data-type="num">α-Bisabolol</th>
+      <th class="terpene-col" data-type="num">Linalool</th>
+      <th class="terpene-col" data-type="num">Ocimene</th>
       <th data-type="text">Notes / source</th>
     </tr>
   </thead>
@@ -83,8 +89,8 @@ const dataBatch1 = [
   {product:"Flowerman Wappa", total:"-", alphaPinene:"-", betaPinene:"-", myrcene:"-", betaCaryophyllene:"-", limonene:"-", terpinolene:"-", alphaHumulene:"-", alphaBisabolol:"-", linalool:"-", ocimene:"-", notes:"Terpene data not publicly available"},
   {product:"HealthHouse Cannabis Tea", total:"-", alphaPinene:"-", betaPinene:"-", myrcene:"-", betaCaryophyllene:"-", limonene:"-", terpinolene:"-", alphaHumulene:"-", alphaBisabolol:"-", linalool:"-", ocimene:"-", notes:"Terpene data not publicly available"},
   {product:"Helius Amelia", total:"-", alphaPinene:"-", betaPinene:"-", myrcene:"-", betaCaryophyllene:"-", limonene:"-", terpinolene:"-", alphaHumulene:"-", alphaBisabolol:"-", linalool:"-", ocimene:"-", notes:"Terpene data not publicly available"},
-  {product:"Helius DK Dawn (Duke)", total:"-", alphaPinene:"-", betaPinene:"-", myrcene:"-", betaCaryophyllene:"-", limonene:"-", terpinolene:"-", alphaHumulene:"-", alphaBisabolol:"-", linalool:"-", ocimene:"-", notes:"Terpene data not publicly available"},
-  {product:"Helius DK Dusk (Frosted Lemon Angel)", total:"-", alphaPinene:"-", betaPinene:"-", myrcene:"-", betaCaryophyllene:"-", limonene:"-", terpinolene:"-", alphaHumulene:"-", alphaBisabolol:"-", linalool:"-", ocimene:"-", notes:"Terpene data not publicly available"},
+  {product:"Helius DK Dawn", total:"-", alphaPinene:"-", betaPinene:"-", myrcene:"-", betaCaryophyllene:"-", limonene:"-", terpinolene:"-", alphaHumulene:"-", alphaBisabolol:"-", linalool:"-", ocimene:"-", notes:"Terpene data not publicly available"},
+  {product:"Helius DK Dusk", total:"-", alphaPinene:"-", betaPinene:"-", myrcene:"-", betaCaryophyllene:"-", limonene:"-", terpinolene:"-", alphaHumulene:"-", alphaBisabolol:"-", linalool:"-", ocimene:"-", notes:"Terpene data not publicly available"},
   {product:"Kikuya Arroyo", total:"-", alphaPinene:"-", betaPinene:"-", myrcene:"-", betaCaryophyllene:"-", limonene:"-", terpinolene:"-", alphaHumulene:"-", alphaBisabolol:"-", linalool:"-", ocimene:"-", notes:"Terpene data not publicly available"},
   {product:"Kikuya Cove", total:"-", alphaPinene:"-", betaPinene:"-", myrcene:"-", betaCaryophyllene:"-", limonene:"-", terpinolene:"-", alphaHumulene:"-", alphaBisabolol:"-", linalool:"-", ocimene:"-", notes:"Terpene data not publicly available"},
   {product:"Kikuya Dune", total:"-", alphaPinene:"-", betaPinene:"-", myrcene:"-", betaCaryophyllene:"-", limonene:"-", terpinolene:"-", alphaHumulene:"-", alphaBisabolol:"-", linalool:"-", ocimene:"-", notes:"Terpene data not publicly available"},
