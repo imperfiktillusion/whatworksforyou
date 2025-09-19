@@ -88,26 +88,38 @@ const dataBatch1 = [
 function populateTable() {
   const tbody = document.querySelector('#terpTable tbody');
   tbody.innerHTML = '';
+
+  // Get column keys from the table header (excluding Product and Notes)
+  const ths = Array.from(document.querySelectorAll('#terpTable thead th'));
+  const colKeys = ths.slice(1, -1).map(th => th.textContent.trim()); // terpene columns
+
   dataBatch1.forEach(item => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${item.product || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.total==='-'?0:parseFloat(item.total)}">${item.total==='-'?'-':parseFloat(item.total).toFixed(3)}</td>
-      <td class="num terpene-cell" data-value="${item.alphaPinene==='-'?0:parseFloat(item.alphaPinene)}">${item.alphaPinene==='-'?'-':parseFloat(item.alphaPinene).toFixed(3)}</td>
-      <td class="num terpene-cell" data-value="${item.betaPinene==='-'?0:parseFloat(item.betaPinene)}">${item.betaPinene==='-'?'-':parseFloat(item.betaPinene).toFixed(3)}</td>
-      <td class="num terpene-cell" data-value="${item.myrcene==='-'?0:parseFloat(item.myrcene)}">${item.myrcene==='-'?'-':parseFloat(item.myrcene).toFixed(3)}</td>
-      <td class="num terpene-cell" data-value="${item.betaCaryophyllene==='-'?0:parseFloat(item.betaCaryophyllene)}">${item.betaCaryophyllene==='-'?'-':parseFloat(item.betaCaryophyllene).toFixed(3)}</td>
-      <td class="num terpene-cell" data-value="${item.limonene==='-'?0:parseFloat(item.limonene)}">${item.limonene==='-'?'-':parseFloat(item.limonene).toFixed(3)}</td>
-      <td class="num terpene-cell" data-value="${item.terpinolene==='-'?0:parseFloat(item.terpinolene)}">${item.terpinolene==='-'?'-':parseFloat(item.terpinolene).toFixed(3)}</td>
-      <td class="num terpene-cell" data-value="${item.alphaHumulene==='-'?0:parseFloat(item.alphaHumulene)}">${item.alphaHumulene==='-'?'-':parseFloat(item.alphaHumulene).toFixed(3)}</td>
-      <td class="num terpene-cell" data-value="${item.alphaBisabolol==='-'?0:parseFloat(item.alphaBisabolol)}">${item.alphaBisabolol==='-'?'-':parseFloat(item.alphaBisabolol).toFixed(3)}</td>
-      <td class="num terpene-cell" data-value="${item.linalool==='-'?0:parseFloat(item.linalool)}">${item.linalool==='-'?'-':parseFloat(item.linalool).toFixed(3)}</td>
-      <td class="num terpene-cell" data-value="${item.ocimene==='-'?0:parseFloat(item.ocimene)}">${item.ocimene==='-'?'-':parseFloat(item.ocimene).toFixed(3)}</td>
-      <td class="note">${item.notes || ''}</td>
-    `;
+
+    // Product cell
+    let rowHTML = `<td>${item.product || '-'}</td>`;
+
+    // Dynamic terpene columns
+    colKeys.forEach(key => {
+      // Map header text to camelCase property (optional: could make a lookup)
+      const prop = key
+        .replace(/[^a-zA-Z0-9]/g, '')       // remove symbols
+        .replace(/^\w/, c => c.toLowerCase()); // lowercase first letter
+
+      const val = item[prop] !== undefined ? item[prop] : '-';
+      const numVal = (val === '-' || isNaN(parseFloat(val))) ? 0 : parseFloat(val);
+      const displayVal = val === '-' ? '-' : parseFloat(val).toFixed(3);
+
+      rowHTML += `<td class="num terpene-cell" data-value="${numVal}">${displayVal}</td>`;
+    });
+
+    // Notes
+    rowHTML += `<td class="note">${item.notes || ''}</td>`;
+    tr.innerHTML = rowHTML;
     tbody.appendChild(tr);
   });
 }
+
 
 function shadeTerpeneColumns() {
   const terpCols = [1,2,3,4,5,6,7,8,9,10,11];
