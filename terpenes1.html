@@ -83,7 +83,7 @@ const dataBatch1 = [
 ];
 
 
-// Map data keys to pretty header names
+// Pretty header names
 const headerPrettyMap = {
   product: "Product",
   total: "Total terpenes (% w/w)",
@@ -100,58 +100,53 @@ const headerPrettyMap = {
   notes: "Notes / source"
 };
 
-// Dynamically build table headers and body
-function buildDynamicTable(data) {
+// Build dynamic table
+function buildDynamicTable(data){
   const table = document.getElementById('terpTable');
   const thead = table.querySelector('thead');
   const tbody = table.querySelector('tbody');
   tbody.innerHTML = '';
   thead.innerHTML = '';
 
-  if (!data.length) return;
+  if(!data.length) return;
 
-  // Collect all unique keys from data
+  // 1️⃣ Collect all unique keys from data
   const keysSet = new Set();
   data.forEach(item => Object.keys(item).forEach(k => keysSet.add(k)));
-  const keys = Array.from(keysSet);
 
- // Sort keys: preferred order first, then others alphabetically, but keep 'notes' last
-const keys = Array.from(keysSet);
-const preferredOrder = ["product","total","myrcene","alphaPinene","betaPinene","betaCaryophyllene","limonene","terpinolene","alphaHumulene","alphaBisabolol","linalool","ocimene"];
+  // 2️⃣ Sort keys: preferred first, then others alphabetically, notes last
+  const preferredOrder = ["product","total","myrcene","alphaPinene","betaPinene","betaCaryophyllene","limonene","terpinolene","alphaHumulene","alphaBisabolol","linalool","ocimene"];
+  const keys = Array.from(keysSet).sort((a,b)=>{
+    if(a === 'notes') return 1;
+    if(b === 'notes') return -1;
+    const iA = preferredOrder.indexOf(a);
+    const iB = preferredOrder.indexOf(b);
+    if(iA!==-1 && iB!==-1) return iA-iB;
+    if(iA!==-1) return -1;
+    if(iB!==-1) return 1;
+    return a.localeCompare(b);
+  });
 
-keys.sort((a,b)=>{
-  if(a === 'notes') return 1;           // 'notes' always last
-  if(b === 'notes') return -1;
-  
-  const iA = preferredOrder.indexOf(a);
-  const iB = preferredOrder.indexOf(b);
-  
-  if(iA!==-1 && iB!==-1) return iA-iB;
-  if(iA!==-1) return -1;
-  if(iB!==-1) return 1;
-  return a.localeCompare(b);
-});
-
-  // Build table header
+  // 3️⃣ Build header
   const trHead = document.createElement('tr');
-  keys.forEach(k => {
+  keys.forEach(k=>{
     const th = document.createElement('th');
-    th.textContent = headerPrettyMap[k] || k.replace(/([A-Z])/g," $1").replace(/^./,str=>str.toUpperCase());
-    th.dataset.type = (k === 'product' || k === 'notes') ? 'text' : 'num';
-    th.className = (th.dataset.type==='num') ? 'terpene-col' : '';
-    th.style.cursor = 'pointer';
+    th.textContent = headerPrettyMap[k] || k.replace(/([A-Z])/g," $1").replace(/^./,s=>s.toUpperCase());
+    th.dataset.type = (k==='product' || k==='notes') ? 'text':'num';
+    if(th.dataset.type==='num') th.className='terpene-col';
     trHead.appendChild(th);
   });
   thead.appendChild(trHead);
 
-  // Build table rows
-  data.forEach(item => {
+  // 4️⃣ Build rows
+  data.forEach(item=>{
     const tr = document.createElement('tr');
-    keys.forEach(k => {
-      let val = item[k] !== undefined ? item[k] : '-';
-      if (trHead.querySelector(`th:nth-child(${keys.indexOf(k)+1})`).dataset.type==='num') {
+    keys.forEach(k=>{
+      let val = item[k]!==undefined ? item[k] : '-';
+      const thType = trHead.querySelector(`th:nth-child(${keys.indexOf(k)+1})`).dataset.type;
+      if(thType==='num'){
         const numVal = (val==='-'||isNaN(parseFloat(val))) ? 0 : parseFloat(val);
-        const displayVal = val==='-' ? '-' : parseFloat(val).toFixed(3);
+        const displayVal = (val==='-' ? '-' : parseFloat(val).toFixed(3));
         tr.innerHTML += `<td class="num terpene-cell" data-value="${numVal}">${displayVal}</td>`;
       } else {
         tr.innerHTML += `<td>${val}</td>`;
@@ -160,13 +155,12 @@ keys.sort((a,b)=>{
     tbody.appendChild(tr);
   });
 
-  // Apply shading and sorting
   shadeTerpeneColumns();
   attachSorting();
 }
 
-// Shade numeric (terpene) columns
-function shadeTerpeneColumns() {
+// Shade numeric columns
+function shadeTerpeneColumns(){
   const table = document.getElementById('terpTable');
   const tbody = table.querySelector('tbody');
   const ths = table.querySelectorAll('th');
@@ -176,17 +170,14 @@ function shadeTerpeneColumns() {
     const cells = Array.from(tbody.rows).map(r=>r.cells[colIdx]);
     const numericCells = cells.filter(c=>parseFloat(c.dataset.value)>0);
     if(!numericCells.length) return;
-
     const values = numericCells.map(c=>parseFloat(c.dataset.value));
     const minVal = Math.min(...values);
     const maxVal = Math.max(...values);
-    const range = maxVal - minVal || 1;
-
+    const range = maxVal-minVal || 1;
     cells.forEach(cell=>{
       const val = parseFloat(cell.dataset.value);
-      if(isNaN(val)||val<=0){
-        cell.style.backgroundColor='';
-      } else {
+      if(isNaN(val)||val<=0) cell.style.backgroundColor='';
+      else{
         const intensity = 0.3 + 0.7*((val-minVal)/range);
         cell.style.backgroundColor=`rgba(0,128,0,${intensity})`;
       }
@@ -195,10 +186,10 @@ function shadeTerpeneColumns() {
 }
 
 // Sorting
-function attachSorting() {
+function attachSorting(){
   const table = document.getElementById('terpTable');
   const ths = table.querySelectorAll('th');
-  ths.forEach((th, idx)=>{
+  ths.forEach((th,idx)=>{
     th.onclick = ()=>{
       const type = th.dataset.type || 'text';
       sortTableByColumn(idx,type);
@@ -212,21 +203,19 @@ function attachSorting() {
     const tbody = table.tBodies[0];
     const rows = Array.from(tbody.rows);
     const asc = table.dataset.sortCol==colIdx && table.dataset.sortDir=='asc'?false:true;
-
     rows.sort((a,b)=>{
       const A=parseVal(a.cells[colIdx].dataset.value||a.cells[colIdx].textContent,type);
       const B=parseVal(b.cells[colIdx].dataset.value||b.cells[colIdx].textContent,type);
       if(type==='num') return asc?A-B:B-A;
       return asc?(A<B?-1:1):(A<B?1:-1);
     });
-
     rows.forEach(r=>tbody.appendChild(r));
     table.dataset.sortCol=colIdx;
     table.dataset.sortDir=asc?'asc':'desc';
   }
 }
 
-// Initialize
+// Init
 buildDynamicTable(dataBatch1);
 </script>
 </body>
