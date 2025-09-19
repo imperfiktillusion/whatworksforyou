@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wellington Monthly Wind Speeds</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body style="font-family:Arial, sans-serif; margin:20px;">
+  <h2>Wellington (Airport) — Monthly Mean Wind Speeds</h2>
+  <div id="chart" style="width:100%;max-width:1200px;height:600px;"></div>
+
+  <script>
+    // Fetch monthly data from Meteostat bulk CSV (station 93436 = Wellington Airport)
+    const url = "https://data.meteostat.net/monthly/93436.csv.gz";
+
+    async function loadData() {
+      // Fetch the gzipped CSV and decompress via pako
+      const resp = await fetch(url);
+      const buf = await resp.arrayBuffer();
+
+      // Use pako.js to decompress gz
+      const pakoUrl = "https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js";
+      await new Promise(r => {
+        const s = document.createElement("script");
+        s.src = pakoUrl;
+        s.onload = r;
+        document.head.appendChild(s);
+      });
+
+      const compressed = new Uint8Array(buf);
+      const decompressed = window.pako.ungzip(compressed, { to: 'string' });
+
+      // Parse CSV
+      const rows = decompressed.trim().split("\n").map(r => r.split(","));
+      const header = rows.shift();
+      const colIndex = {};
+      header.forEach((h,i)=>colIndex[h]=i);
+
+      const dates
