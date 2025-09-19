@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NZ medicinal cannabis — terpene spreadsheet</title>
+<title>NZ Medicinal Cannabis Terpenes</title>
+
+  
 <style>
   body{font-family:Inter, Roboto, Arial, sans-serif;padding:18px;background:#f7f7fb;color:#111}
   h1{font-size:14px;margin-bottom:6px}
@@ -107,26 +109,27 @@ const dataBatch1 = [
 function populateTable(){
   const tbody = document.querySelector('#terpTable tbody');
   tbody.innerHTML = '';
-  data.forEach(item => {
+  dataBatch1.forEach(item => {   // <- use dataBatch1 here
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${item.product || 'N/A'}</td>
-      <td class="num">${item.total || 'N/A'}</td>
-      <td class="num">${item.alphaPinene || 'N/A'}</td>
-      <td class="num">${item.betaPinene || 'N/A'}</td>
-      <td class="num">${item.myrcene || 'N/A'}</td>
-      <td class="num">${item.betaCaryophyllene || 'N/A'}</td>
-      <td class="num">${item.limonene || 'N/A'}</td>
-      <td class="num">${item.terpinolene || 'N/A'}</td>
-      <td class="num">${item.alphaHumulene || 'N/A'}</td>
-      <td class="num">${item.alphaBisabolol || 'N/A'}</td>
-      <td class="num">${item.linalool || 'N/A'}</td>
-      <td class="num">${item.ocimene || 'N/A'}</td>
+      <td>${item.product || '-'}</td>
+      <td class="num">${item.total || '-'}</td>
+      <td class="num">${item.alphaPinene || '-'}</td>
+      <td class="num">${item.betaPinene || '-'}</td>
+      <td class="num">${item.myrcene || '-'}</td>
+      <td class="num">${item.betaCaryophyllene || '-'}</td>
+      <td class="num">${item.limonene || '-'}</td>
+      <td class="num">${item.terpinolene || '-'}</td>
+      <td class="num">${item.alphaHumulene || '-'}</td>
+      <td class="num">${item.alphaBisabolol || '-'}</td>
+      <td class="num">${item.linalool || '-'}</td>
+      <td class="num">${item.ocimene || '-'}</td>
       <td class="note">${item.notes || ''}</td>
     `;
     tbody.appendChild(tr);
   });
 }
+
 
 // Sorting functionality
 (function(){
