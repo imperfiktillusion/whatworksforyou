@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NZ medicinal cannabis — terpene spreadsheet</title>
+<style>
+  body{font-family:Inter, Roboto, Arial, sans-serif;padding:18px;background:#f7f7fb;color:#111}
+  h1{font-size:20px;margin-bottom:6px}
+  table{border-collapse:collapse;width:100%;background:#fff;border:1px solid #e1e4ef}
+  th,td{padding:8px 10px;border-bottom:1px solid #eef0f6;text-align:right}
+  th{background:#fafbff;position:sticky;top:0;z-index:2;text-align:center;cursor:pointer}
+  th:first-child, td:first-child{text-align:left}
+  tr:hover td{background:#fcfdff}
+  .note{font-size:12px;color:#444;text-align:left}
+  .small{font-size:12px;color:#666}
+  .num{white-space:nowrap}
+</style>
+</head>
+<body>
+<h1>NZ medicinal cannabis — terpene spreadsheet</h1>
+<p class="small">Click any column header to sort (numeric values sort numerically; "N/A" are treated as empty).</p>
+
+<table id="terpTable">
+  <thead>
+    <tr>
+      <th data-type="text">Product</th>
+      <th data-type="num">Total terpenes (% w/w)</th>
+      <th data-type="num">α-Pinene</th>
+      <th data-type="num">β-Pinene</th>
+      <th data-type="num">Myrcene</th>
+      <th data-type="num">β-Caryophyllene</th>
+      <th data-type="num">Limonene</th>
+      <th data-type="num">Terpinolene</th>
+      <th data-type="num">α-Humulene</th>
+      <th data-type="num">α-Bisabolol</th>
+      <th data-type="num">Linalool</th>
+      <th data-type="num">Ocimene</th>
+      <th data-type="text">Notes / source</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<script>
+const data = [
+  {product:"ANTG Duke", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"ANTG Eve", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"ANTG Juno", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"ANTG Mariposa", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"ANTG Rocky", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"ANTG Solace", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Aurora Luminarium", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Aurora Sedaprem", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Bloom Pink Kush ", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Cannasouth Cumulus T17", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Cannasouth Symetis B52 T17", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Flowerman Wappa", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"HealthHouse Cannabis Tea", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Helius Amelia", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Helius DK Dawn (Duke)", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Helius DK Dusk (Frosted Lemon Angel)", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Kikuya Arroyo", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Kikuya Cove", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Kikuya Dune", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Kikuya Peak", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Medleaf GG4", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Medleaf GSCx", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Medleaf LL Kush", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Medleaf MAC-1", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Medleaf Runtz M", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Medleaf Tropicana", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Medleaf Zour Apple", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Rua THC 18 White Widow", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Rua THC 24", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Rua THC 26", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Smith Indica", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+  {product:"Smith Indica", total:"N/A", alphaPinene:"N/A", betaPinene:"N/A", myrcene:"N/A", betaCaryophyllene:"N/A", limonene:"N/A", terpinolene:"N/A", alphaHumulene:"N/A", alphaBisabolol:"N/A", linalool:"N/A", ocimene:"N/A", notes:"Data to be filled"},
+];
+// Function to populate table dynamically
+function populateTable(){
+  const tbody = document.querySelector('#terpTable tbody');
+  tbody.innerHTML = '';
+  data.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.product || 'N/A'}</td>
+      <td class="num">${item.total || 'N/A'}</td>
+      <td class="num">${item.alphaPinene || 'N/A'}</td>
+      <td class="num">${item.betaPinene || 'N/A'}</td>
+      <td class="num">${item.myrcene || 'N/A'}</td>
+      <td class="num">${item.betaCaryophyllene || 'N/A'}</td>
+      <td class="num">${item.limonene || 'N/A'}</td>
+      <td class="num">${item.terpinolene || 'N/A'}</td>
+      <td class="num">${item.alphaHumulene || 'N/A'}</td>
+      <td class="num">${item.alphaBisabolol || 'N/A'}</td>
+      <td class="num">${item.linalool || 'N/A'}</td>
+      <td class="num">${item.ocimene || 'N/A'}</td>
+      <td class="note">${item.notes || ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Sorting functionality
+(function(){
+  const table = document.getElementById('terpTable');
+  const ths = table.querySelectorAll('th');
+  ths.forEach((th, idx) => {
+    th.addEventListener('click', () => {
+      const type = th.getAttribute('data-type') || 'text';
+      sortTableByColumn(idx, type);
+    });
+  });
+
+  function parseVal(v){
+    if(!v) return NaN;
+    v = v.toString().trim();
+    if(v === 'N/A' || v === '') return NaN;
+    const f = parseFloat(v.replace('%',''));
+    return isNaN(f)?v.toLowerCase():f;
+  }
+
+  function sortTableByColumn(colIdx, type){
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
+    const asc = table.getAttribute('data-sort-col') == colIdx && table.getAttribute('data-sort-dir') == 'asc' ? false : true;
+    rows.sort((a,b)=>{
+      const A = parseVal(a.cells[colIdx].textContent);
+      const B = parseVal(b.cells[colIdx].textContent);
+      if(typeof A === 'number' && typeof B === 'number'){
+        if(isNaN(A) && isNaN(B)) return 0;
+        if(isNaN(A)) return 1;
+        if(isNaN(B)) return -1;
+        return asc ? A - B : B - A;
+      }
+      if(A < B) return asc ? -1 : 1;
+      if(A > B) return asc ? 1 : -1;
+      return 0;
+    });
+    rows.forEach(r => tbody.appendChild(r));
+    table.setAttribute('data-sort-col', colIdx);
+    table.setAttribute('data-sort-dir', asc ? 'asc' : 'desc');
+  }
+})();
+
+// Initial population
+populateTable();
+</script>
+</body>
+</html>
