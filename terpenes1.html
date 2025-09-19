@@ -88,7 +88,7 @@ const dataBatch1 = [
 function populateTable() {
   const tbody = document.querySelector('#terpTable tbody');
   tbody.innerHTML = '';
-  data.forEach(item => {
+  dataBatch1.forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${item.product || '-'}</td>
