@@ -83,120 +83,145 @@ const dataBatch1 = [
 ];
 
 
+// Map data keys to pretty header names
+const headerPrettyMap = {
+  product: "Product",
+  total: "Total terpenes (% w/w)",
+  myrcene: "Myrcene",
+  alphaPinene: "α-Pinene",
+  betaPinene: "β-Pinene",
+  betaCaryophyllene: "β-Caryophyllene",
+  limonene: "Limonene",
+  terpinolene: "Terpinolene",
+  alphaHumulene: "α-Humulene",
+  alphaBisabolol: "α-Bisabolol",
+  linalool: "Linalool",
+  ocimene: "Ocimene",
+  notes: "Notes / source"
+};
 
-// Populate table
-function populateTable() {
-  const tbody = document.querySelector('#terpTable tbody');
+// Dynamically build table headers and body
+function buildDynamicTable(data) {
+  const table = document.getElementById('terpTable');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
   tbody.innerHTML = '';
+  thead.innerHTML = '';
 
-  // Get column keys from the table header (excluding Product and Notes)
-  const ths = Array.from(document.querySelectorAll('#terpTable thead th'));
-  const colKeys = ths.slice(1, -1).map(th => th.textContent.trim()); // terpene columns
+  if (!data.length) return;
 
-  dataBatch1.forEach(item => {
+  // Collect all unique keys from data
+  const keysSet = new Set();
+  data.forEach(item => Object.keys(item).forEach(k => keysSet.add(k)));
+  const keys = Array.from(keysSet);
+
+  // Optional: define order for important columns
+  const preferredOrder = ["product","total","myrcene","alphaPinene","betaPinene","betaCaryophyllene","limonene","terpinolene","alphaHumulene","alphaBisabolol","linalool","ocimene","notes"];
+  keys.sort((a,b)=>{
+    const iA = preferredOrder.indexOf(a);
+    const iB = preferredOrder.indexOf(b);
+    if(iA!==-1 && iB!==-1) return iA-iB;
+    if(iA!==-1) return -1;
+    if(iB!==-1) return 1;
+    return a.localeCompare(b);
+  });
+
+  // Build table header
+  const trHead = document.createElement('tr');
+  keys.forEach(k => {
+    const th = document.createElement('th');
+    th.textContent = headerPrettyMap[k] || k.replace(/([A-Z])/g," $1").replace(/^./,str=>str.toUpperCase());
+    th.dataset.type = (k === 'product' || k === 'notes') ? 'text' : 'num';
+    th.className = (th.dataset.type==='num') ? 'terpene-col' : '';
+    th.style.cursor = 'pointer';
+    trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
+
+  // Build table rows
+  data.forEach(item => {
     const tr = document.createElement('tr');
-
-    // Product cell
-    let rowHTML = `<td>${item.product || '-'}</td>`;
-
-    // Dynamic terpene columns
-    colKeys.forEach(key => {
-      // Map header text to camelCase property (optional: could make a lookup)
-      const prop = key
-        .replace(/[^a-zA-Z0-9]/g, '')       // remove symbols
-        .replace(/^\w/, c => c.toLowerCase()); // lowercase first letter
-
-      const val = item[prop] !== undefined ? item[prop] : '-';
-      const numVal = (val === '-' || isNaN(parseFloat(val))) ? 0 : parseFloat(val);
-      const displayVal = val === '-' ? '-' : parseFloat(val).toFixed(3);
-
-      rowHTML += `<td class="num terpene-cell" data-value="${numVal}">${displayVal}</td>`;
+    keys.forEach(k => {
+      let val = item[k] !== undefined ? item[k] : '-';
+      if (trHead.querySelector(`th:nth-child(${keys.indexOf(k)+1})`).dataset.type==='num') {
+        const numVal = (val==='-'||isNaN(parseFloat(val))) ? 0 : parseFloat(val);
+        const displayVal = val==='-' ? '-' : parseFloat(val).toFixed(3);
+        tr.innerHTML += `<td class="num terpene-cell" data-value="${numVal}">${displayVal}</td>`;
+      } else {
+        tr.innerHTML += `<td>${val}</td>`;
+      }
     });
-
-    // Notes
-    rowHTML += `<td class="note">${item.notes || ''}</td>`;
-    tr.innerHTML = rowHTML;
     tbody.appendChild(tr);
   });
+
+  // Apply shading and sorting
+  shadeTerpeneColumns();
+  attachSorting();
 }
 
-
+// Shade numeric (terpene) columns
 function shadeTerpeneColumns() {
-  const terpCols = [1,2,3,4,5,6,7,8,9,10,11];
-  const tbody = document.querySelector('#terpTable tbody');
+  const table = document.getElementById('terpTable');
+  const tbody = table.querySelector('tbody');
+  const ths = table.querySelectorAll('th');
+  const terpCols = Array.from(ths).map((th,i)=>i).filter(i=>ths[i].dataset.type==='num');
 
-  terpCols.forEach(colIdx => {
-    const cells = Array.from(tbody.rows).map(r => r.cells[colIdx]);
+  terpCols.forEach(colIdx=>{
+    const cells = Array.from(tbody.rows).map(r=>r.cells[colIdx]);
+    const numericCells = cells.filter(c=>parseFloat(c.dataset.value)>0);
+    if(!numericCells.length) return;
 
-    // Only numeric values above 0
-    const numericCells = cells.filter(c => {
-      const val = parseFloat(c.dataset.value);
-      return !isNaN(val) && val > 0;
-    });
-
-    if(!numericCells.length) return; // skip column if no positive numbers
-
-    const values = numericCells.map(c => parseFloat(c.dataset.value));
+    const values = numericCells.map(c=>parseFloat(c.dataset.value));
     const minVal = Math.min(...values);
     const maxVal = Math.max(...values);
-    const range = maxVal - minVal || 1; // avoid divide by zero
+    const range = maxVal - minVal || 1;
 
-    cells.forEach(cell => {
+    cells.forEach(cell=>{
       const val = parseFloat(cell.dataset.value);
-      if(isNaN(val) || val <= 0){
-        cell.style.backgroundColor = '';
+      if(isNaN(val)||val<=0){
+        cell.style.backgroundColor='';
       } else {
-        // Scale intensity 0.3-1 based on value within column range
-        const intensity = 0.3 + 0.7 * ((val - minVal) / range);
-        cell.style.backgroundColor = `rgba(0,128,0,${intensity})`;
+        const intensity = 0.3 + 0.7*((val-minVal)/range);
+        cell.style.backgroundColor=`rgba(0,128,0,${intensity})`;
       }
     });
   });
 }
 
-
 // Sorting
-(function(){
+function attachSorting() {
   const table = document.getElementById('terpTable');
   const ths = table.querySelectorAll('th');
-  
-  ths.forEach((th, idx) => {
-    th.addEventListener('click', () => {
+  ths.forEach((th, idx)=>{
+    th.onclick = ()=>{
       const type = th.dataset.type || 'text';
-      sortTableByColumn(idx, type);
+      sortTableByColumn(idx,type);
       shadeTerpeneColumns();
-    });
+    }
   });
 
-  function parseVal(v, type) {
-    if(type==='num') {
-      const f = parseFloat(v);
-      return isNaN(f)?-1:f;
-    }
-    return v.toString().toLowerCase();
-  }
+  function parseVal(v,type){ return type==='num'? (isNaN(parseFloat(v))?-1:parseFloat(v)) : v.toString().toLowerCase(); }
 
-  function sortTableByColumn(colIdx, type) {
+  function sortTableByColumn(colIdx,type){
     const tbody = table.tBodies[0];
     const rows = Array.from(tbody.rows);
     const asc = table.dataset.sortCol==colIdx && table.dataset.sortDir=='asc'?false:true;
 
     rows.sort((a,b)=>{
-      const A = parseVal(a.cells[colIdx].dataset.value || a.cells[colIdx].textContent, type);
-      const B = parseVal(b.cells[colIdx].dataset.value || b.cells[colIdx].textContent, type);
-      if(type==='num') return asc ? A-B : B-A;
-      return asc ? (A<B?-1:1) : (A<B?1:-1);
+      const A=parseVal(a.cells[colIdx].dataset.value||a.cells[colIdx].textContent,type);
+      const B=parseVal(b.cells[colIdx].dataset.value||b.cells[colIdx].textContent,type);
+      if(type==='num') return asc?A-B:B-A;
+      return asc?(A<B?-1:1):(A<B?1:-1);
     });
 
-    rows.forEach(r => tbody.appendChild(r));
-    table.dataset.sortCol = colIdx;
-    table.dataset.sortDir = asc?'asc':'desc';
+    rows.forEach(r=>tbody.appendChild(r));
+    table.dataset.sortCol=colIdx;
+    table.dataset.sortDir=asc?'asc':'desc';
   }
-})();
+}
 
-// Init
-populateTable();
-shadeTerpeneColumns();
+// Initialize
+buildDynamicTable(dataBatch1);
 </script>
 </body>
 </html>
