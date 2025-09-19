@@ -88,52 +88,60 @@ const dataBatch1 = [
 function populateTable() {
   const tbody = document.querySelector('#terpTable tbody');
   tbody.innerHTML = '';
-  dataBatch1.forEach(item => {
+  data.forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${item.product || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.total==='-'?0:parseFloat(item.total)}">${item.total || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.myrcene==='-'?0:parseFloat(item.myrcene)}">${item.myrcene || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.alphaPinene==='-'?0:parseFloat(item.alphaPinene)}">${item.alphaPinene || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.betaPinene==='-'?0:parseFloat(item.betaPinene)}">${item.betaPinene || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.betaCaryophyllene==='-'?0:parseFloat(item.betaCaryophyllene)}">${item.betaCaryophyllene || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.limonene==='-'?0:parseFloat(item.limonene)}">${item.limonene || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.terpinolene==='-'?0:parseFloat(item.terpinolene)}">${item.terpinolene || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.alphaHumulene==='-'?0:parseFloat(item.alphaHumulene)}">${item.alphaHumulene || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.alphaBisabolol==='-'?0:parseFloat(item.alphaBisabolol)}">${item.alphaBisabolol || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.linalool==='-'?0:parseFloat(item.linalool)}">${item.linalool || '-'}</td>
-      <td class="num terpene-cell" data-value="${item.ocimene==='-'?0:parseFloat(item.ocimene)}">${item.ocimene || '-'}</td>
+      <td class="num terpene-cell" data-value="${item.total==='-'?0:parseFloat(item.total)}">${item.total==='-'?'-':parseFloat(item.total).toFixed(3)}</td>
+      <td class="num terpene-cell" data-value="${item.alphaPinene==='-'?0:parseFloat(item.alphaPinene)}">${item.alphaPinene==='-'?'-':parseFloat(item.alphaPinene).toFixed(3)}</td>
+      <td class="num terpene-cell" data-value="${item.betaPinene==='-'?0:parseFloat(item.betaPinene)}">${item.betaPinene==='-'?'-':parseFloat(item.betaPinene).toFixed(3)}</td>
+      <td class="num terpene-cell" data-value="${item.myrcene==='-'?0:parseFloat(item.myrcene)}">${item.myrcene==='-'?'-':parseFloat(item.myrcene).toFixed(3)}</td>
+      <td class="num terpene-cell" data-value="${item.betaCaryophyllene==='-'?0:parseFloat(item.betaCaryophyllene)}">${item.betaCaryophyllene==='-'?'-':parseFloat(item.betaCaryophyllene).toFixed(3)}</td>
+      <td class="num terpene-cell" data-value="${item.limonene==='-'?0:parseFloat(item.limonene)}">${item.limonene==='-'?'-':parseFloat(item.limonene).toFixed(3)}</td>
+      <td class="num terpene-cell" data-value="${item.terpinolene==='-'?0:parseFloat(item.terpinolene)}">${item.terpinolene==='-'?'-':parseFloat(item.terpinolene).toFixed(3)}</td>
+      <td class="num terpene-cell" data-value="${item.alphaHumulene==='-'?0:parseFloat(item.alphaHumulene)}">${item.alphaHumulene==='-'?'-':parseFloat(item.alphaHumulene).toFixed(3)}</td>
+      <td class="num terpene-cell" data-value="${item.alphaBisabolol==='-'?0:parseFloat(item.alphaBisabolol)}">${item.alphaBisabolol==='-'?'-':parseFloat(item.alphaBisabolol).toFixed(3)}</td>
+      <td class="num terpene-cell" data-value="${item.linalool==='-'?0:parseFloat(item.linalool)}">${item.linalool==='-'?'-':parseFloat(item.linalool).toFixed(3)}</td>
+      <td class="num terpene-cell" data-value="${item.ocimene==='-'?0:parseFloat(item.ocimene)}">${item.ocimene==='-'?'-':parseFloat(item.ocimene).toFixed(3)}</td>
       <td class="note">${item.notes || ''}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-// Apply gradient shading
 function shadeTerpeneColumns() {
   const terpCols = [1,2,3,4,5,6,7,8,9,10,11];
   const tbody = document.querySelector('#terpTable tbody');
 
   terpCols.forEach(colIdx => {
     const cells = Array.from(tbody.rows).map(r => r.cells[colIdx]);
-    
-    // Only consider numeric cells for max calculation
-    const numericCells = cells.filter(c => !isNaN(parseFloat(c.dataset.value)));
+
+    // Only numeric values above 0
+    const numericCells = cells.filter(c => {
+      const val = parseFloat(c.dataset.value);
+      return !isNaN(val) && val > 0;
+    });
+
+    if(!numericCells.length) return; // skip column if no positive numbers
+
     const values = numericCells.map(c => parseFloat(c.dataset.value));
-    const maxVal = values.length ? Math.max(...values) : 0;
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+    const range = maxVal - minVal || 1; // avoid divide by zero
 
     cells.forEach(cell => {
       const val = parseFloat(cell.dataset.value);
-      if(isNaN(val)) {
-        // Non-numeric cells stay unshaded
+      if(isNaN(val) || val <= 0){
         cell.style.backgroundColor = '';
       } else {
-        const intensity = maxVal===0 ? 0 : val/maxVal;
-        cell.style.backgroundColor = `rgba(0,128,0,${0.2 + 0.6*intensity})`;
+        // Scale intensity 0.3-1 based on value within column range
+        const intensity = 0.3 + 0.7 * ((val - minVal) / range);
+        cell.style.backgroundColor = `rgba(0,128,0,${intensity})`;
       }
     });
   });
 }
+
 
 // Sorting
 (function(){
