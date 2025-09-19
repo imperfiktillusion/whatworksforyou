@@ -37,6 +37,13 @@
   .small{font-size:10px;color:#666}
   .num{white-space:nowrap}
   .terpene-cell{color:#111} /* text readable on gradient */
+
+    .terpene-col {
+    width: 60px; /* adjust as needed */
+    min-width: 60px;
+    max-width: 60px;
+  }
+  
 </style>
 
 </head>
@@ -107,7 +114,7 @@ const dataBatch1 = [
 function populateTable() {
   const tbody = document.querySelector('#terpTable tbody');
   tbody.innerHTML = '';
-  data.forEach(item => {
+  dataBatch1.forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${item.product || '-'}</td>
