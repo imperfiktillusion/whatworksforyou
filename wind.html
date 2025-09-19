@@ -10,30 +10,68 @@
   <div id="chart" style="width:100%;max-width:1200px;height:600px;"></div>
 
   <script>
-    // Fetch monthly data from Meteostat bulk CSV (station 93436 = Wellington Airport)
-    const url = "https://data.meteostat.net/monthly/93436.csv.gz";
+    // Fetch monthly data via Meteostat API
+    // Station 93436 = Wellington Airport
+    const url = "https://meteostat.p.rapidapi.com/stations/monthly?station=93436&start=1900-01&end=2025-12";
 
     async function loadData() {
-      // Fetch the gzipped CSV and decompress via pako
-      const resp = await fetch(url);
-      const buf = await resp.arrayBuffer();
+      // You need a free RapidAPI key for Meteostat:
+      // https://rapidapi.com/meteostat/api/meteostat
+      const headers = {
+        "X-RapidAPI-Key": "YOUR_API_KEY_HERE",
+        "X-RapidAPI-Host": "meteostat.p.rapidapi.com"
+      };
 
-      // Use pako.js to decompress gz
-      const pakoUrl = "https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js";
-      await new Promise(r => {
-        const s = document.createElement("script");
-        s.src = pakoUrl;
-        s.onload = r;
-        document.head.appendChild(s);
+      const resp = await fetch(url, { headers });
+      const data = await resp.json();
+
+      const dates = [];
+      const wspd = [];
+
+      data.data.forEach(row => {
+        if (row.wspd !== null) {
+          dates.push(row.date + "-01");
+          wspd.push(row.wspd);
+        }
       });
 
-      const compressed = new Uint8Array(buf);
-      const decompressed = window.pako.ungzip(compressed, { to: 'string' });
+      // Compute 12-month rolling average
+      const roll = [];
+      for (let i = 0; i < wspd.length; i++) {
+        const start = Math.max(0, i - 11);
+        const subset = wspd.slice(start, i + 1);
+        const avg = subset.reduce((a, b) => a + b, 0) / subset.length;
+        roll.push(avg);
+      }
 
-      // Parse CSV
-      const rows = decompressed.trim().split("\n").map(r => r.split(","));
-      const header = rows.shift();
-      const colIndex = {};
-      header.forEach((h,i)=>colIndex[h]=i);
+      // Plot
+      const trace1 = {
+        x: dates,
+        y: wspd,
+        mode: 'lines',
+        name: 'Monthly Mean',
+        line: { color: 'steelblue' }
+      };
 
-      const dates
+      const trace2 = {
+        x: dates,
+        y: roll,
+        mode: 'lines',
+        name: '12-Month Moving Avg',
+        line: { color: 'darkorange', width: 2 }
+      };
+
+      const layout = {
+        title: 'Wellington Monthly Mean Wind Speeds (km/h)',
+        xaxis: { title: 'Year' },
+        yaxis: { title: 'Wind Speed (km/h)' },
+        legend: { orientation: 'h', x: 0, y: 1.1 }
+      };
+
+      Plotly.newPlot('chart', [trace1, trace2], layout);
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
