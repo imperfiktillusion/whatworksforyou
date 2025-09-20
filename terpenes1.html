@@ -142,20 +142,22 @@ function buildDynamicTable(data){
 
   // 4️⃣ Build rows
   data.forEach(item=>{
-    const tr = document.createElement('tr');
-    keys.forEach(k=>{
-      let val = item[k]!==undefined ? item[k] : '-';
-      const thType = trHead.querySelector(`th:nth-child(${keys.indexOf(k)+1})`).dataset.type;
-      if(thType==='num'){
-        const numVal = (val==='-'||isNaN(parseFloat(val))) ? 0 : parseFloat(val);
-        const displayVal = (val==='-' ? '-' : parseFloat(val).toFixed(3));
-        tr.innerHTML += `<td class="num terpene-cell" data-value="${numVal}">${displayVal}</td>`;
-      } else {
-        tr.innerHTML += `<td>${val}</td>`;
-      }
-    });
-    tbody.appendChild(tr);
+  const tr = document.createElement('tr');
+  keys.forEach(k=>{
+    let val = item[k]!==undefined ? item[k] : '-';
+    const thType = trHead.querySelector(`th:nth-child(${keys.indexOf(k)+1})`).dataset.type;
+
+    if(thType==='num'){
+      const numVal = parseFloat(val);
+      const isNumeric = !isNaN(numVal);
+      const displayVal = (isNumeric ? numVal.toFixed(3) : val);  // show text if not numeric
+      tr.innerHTML += `<td class="num terpene-cell" data-value="${isNumeric ? numVal : ''}">${displayVal}</td>`;
+    } else {
+      tr.innerHTML += `<td>${val}</td>`;
+    }
   });
+  tbody.appendChild(tr);
+});
 
   shadeTerpeneColumns();
   attachSorting();
