@@ -118,29 +118,27 @@ function buildDynamicTable(data){
   const keysSet = new Set();
   data.forEach(item => Object.keys(item).forEach(k => keysSet.add(k)));
 
-  // 2️⃣ Sort keys: preferred first, then others alphabetically, notes last
-  const preferredOrder = ["product","total","myrcene","alphaPinene","betaPinene","betaCaryophyllene","limonene","terpinolene","alphaHumulene","alphaBisabolol","linalool","ocimene"];
-  const keys = Array.from(keysSet).sort((a,b)=>{
-    if(a === 'notes') return 1;
-    if(b === 'notes') return -1;
-    const iA = preferredOrder.indexOf(a);
-    const iB = preferredOrder.indexOf(b);
-    if(iA!==-1 && iB!==-1) return iA-iB;
-    if(iA!==-1) return -1;
-    if(iB!==-1) return 1;
-    return a.localeCompare(b);
-  });
+// 2️⃣ Define column order
+const preferredOrder = [
+  "β-Caryophyllene","Limonene","d-Limonene","Myrcene","β-Myrcene",
+  "α-Pinene","β-Pinene","Terpinolene","α-Humulene","Franesene",
+  "Linalool","Selina3,7(11)-diene","trans-Caryophyllene","Selina-4(15),7(11)-diene",
+  "Ocimene","α-Bisabolol","Guaiol","Germacrene","β-Ocimene",
+  "Terpineol","α-Bulnesene","Guaia-6,9-diene","Caryophyllene Oxide","trans-nerolidol",
+  "Camphene","α-Terpinene","3-Carene","β-Selinene","gamma-Terpinene","Camphor",
+  "product","total","notes"
+];
 
-  // 3️⃣ Build header
-  const trHead = document.createElement('tr');
-  keys.forEach(k=>{
-    const th = document.createElement('th');
-    th.textContent = headerPrettyMap[k] || k.replace(/([A-Z])/g," $1").replace(/^./,s=>s.toUpperCase());
-    th.dataset.type = (k==='product' || k==='notes') ? 'text':'num';
-    if(th.dataset.type==='num') th.className='terpene-col';
-    trHead.appendChild(th);
-  });
-  thead.appendChild(trHead);
+// 3️⃣ Sort keys according to preferredOrder
+const keys = Array.from(keysSet).sort((a,b)=>{
+  const iA = preferredOrder.indexOf(a);
+  const iB = preferredOrder.indexOf(b);
+  if(iA!==-1 && iB!==-1) return iA-iB;
+  if(iA!==-1) return -1;
+  if(iB!==-1) return 1;
+  return a.localeCompare(b); // fallback for any extra keys
+});
+
 
   // 4️⃣ Build rows
   data.forEach(item=>{
