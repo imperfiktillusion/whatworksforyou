@@ -4,15 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spreadsheet Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin: 0;
   }
   table {
     border-collapse: collapse;
     width: 100%;
-    font-size: 0.8rem; /* reduced by ~2 sizes */
+    font-size: 0.8rem; /* reduced font */
   }
   th, td {
     border: 1px solid #ccc;
@@ -25,18 +26,24 @@
     background-color: #f4f4f4;
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 3;
+    border-bottom: 2px solid #999;
+    word-wrap: break-word;
+    max-width: 80px;
   }
   td:first-child, th:first-child {
     position: sticky;
     left: 0;
-    background-color: #fff;
+    background-color: #f4f4f4;
     text-align: left;
-    z-index: 1;
+    z-index: 2;
+  }
+  td:last-child, th:last-child {
+    text-align: left;
   }
   td.shaded {
     color: #000;
-    width: 80px; /* uniform width for shaded columns */
+    width: 80px; /* fixed width for shaded columns */
   }
 </style>
 </head>
@@ -52,18 +59,17 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-// Google Sheets CSV URL
+// CSV URL
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTww6fpAXf2v9iAoHDaMmlT44fgIggpFPAKubK9xRsDQfpdnquC3JYt2sL54Mn6Bgl-ld3jjQR7QIXP/pub?gid=869048094&single=true&output=csv";
 
 let tableData = [];
 let sortDirections = [];
 
-// Load CSV and build table
+// Load CSV
 fetch(csvUrl)
-  .then(response => response.text())
-  .then(csvText => {
-    // Use PapaParse to handle commas inside quotes
-    tableData = Papa.parse(csvText, {header: false}).data;
+  .then(res => res.text())
+  .then(text => {
+    tableData = Papa.parse(text, {header: false}).data;
     buildTable();
   });
 
@@ -74,7 +80,7 @@ function buildTable() {
   headerRow.innerHTML = '';
   tableBody.innerHTML = '';
 
-  // Remove rows with empty first column
+  // Filter rows with first column empty
   let bodyData = tableData.slice(1).filter(r => r[0] && r[0].trim() !== '');
 
   // Initialize sort directions
@@ -96,13 +102,13 @@ function renderTableBody(data) {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
 
-  const columnsToShade = Array.from({length: data[0].length}, (_, i) => i)
-                              .filter(i => i > 1 && i < data[0].length - 1);
+  const shadedCols = Array.from({length: data[0].length}, (_, i) => i)
+                          .filter(i => i > 0 && i < data[0].length - 1);
 
-  // Compute min/max per column for shading
+  // Compute min/max for shading
   const minMax = {};
-  columnsToShade.forEach(col => {
-    const numbers = data.map(row => parseFloat(row[col])).filter(n => !isNaN(n));
+  shadedCols.forEach(col => {
+    const numbers = data.map(r => parseFloat(r[col])).filter(n => !isNaN(n));
     minMax[col] = {min: Math.min(...numbers), max: Math.max(...numbers)};
   });
 
@@ -112,12 +118,18 @@ function renderTableBody(data) {
       const td = document.createElement('td');
       td.textContent = cell;
 
-      if (columnsToShade.includes(idx)) {
+      // Shading
+      if (shadedCols.includes(idx)) {
         const val = parseFloat(cell);
         if (!isNaN(val)) {
           const {min, max} = minMax[idx];
           const percent = max === min ? 1 : (val - min) / (max - min);
-          td.style.backgroundColor = `rgba(0, 150, 255, ${percent * 0.5 + 0.1})`;
+          // Second column green
+          if (idx === 1) {
+            td.style.backgroundColor = `rgba(0, 150, 0, ${percent * 0.5 + 0.1})`;
+          } else {
+            td.style.backgroundColor = `rgba(0, 150, 255, ${percent * 0.5 + 0.1})`;
+          }
           td.classList.add('shaded');
         }
       }
