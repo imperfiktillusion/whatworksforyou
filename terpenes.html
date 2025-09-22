@@ -131,18 +131,20 @@ function renderTableBody(data) {
       const td = document.createElement('td');
       td.textContent = cell;
 
-      // Shading
       if (shadedCols.includes(idx)) {
         const val = parseFloat(cell);
         if (!isNaN(val)) {
           const {min, max} = minMax[idx];
           const percent = max === min ? 1 : (val - min) / (max - min);
-          // Second column green
           if (idx === 1) {
             td.style.backgroundColor = `rgba(0, 150, 0, ${percent * 0.5 + 0.1})`;
           } else {
             td.style.backgroundColor = `rgba(0, 150, 255, ${percent * 0.5 + 0.1})`;
           }
+          td.classList.add('shaded');
+        } else if (cell.trim() !== '') {
+          // Text value: shade purple
+          td.style.backgroundColor = 'rgba(150, 0, 150, 0.3)';
           td.classList.add('shaded');
         }
       }
@@ -152,6 +154,7 @@ function renderTableBody(data) {
     tbody.appendChild(tr);
   });
 }
+
 
 // Sort column
 function sortColumn(colIndex) {
