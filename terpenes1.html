@@ -223,7 +223,7 @@ function attachSorting(){
   function sortTableByColumn(colIdx,type){
     const tbody = table.tBodies[0];
     const rows = Array.from(tbody.rows);
-    const asc = table.dataset.sortCol==colIdx && table.dataset.sortDir=='asc'?false:true;
+    const asc = table.dataset.sortCol==colIdx && table.dataset.sortDir=='desc'?false:true;
     rows.sort((a,b)=>{
       const A=parseVal(a.cells[colIdx].dataset.value||a.cells[colIdx].textContent,type);
       const B=parseVal(b.cells[colIdx].dataset.value||b.cells[colIdx].textContent,type);
@@ -232,7 +232,7 @@ function attachSorting(){
     });
     rows.forEach(r=>tbody.appendChild(r));
     table.dataset.sortCol=colIdx;
-    table.dataset.sortDir=desc?'desc':'asc';
+    table.dataset.sortDir=desc?'asc':'desc';
   }
 }
 
