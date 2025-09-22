@@ -107,58 +107,53 @@ const headerPrettyMap = {
 // Build dynamic table
 function buildDynamicTable(data){
   const table = document.getElementById('terpTable');
-  const thead = table.querySelector('thead');
   const tbody = table.querySelector('tbody');
+  const thead = table.querySelector('thead');
   tbody.innerHTML = '';
   thead.innerHTML = '';
 
   if(!data.length) return;
 
-  // 1️⃣ Collect all unique keys from data
-  const keysSet = new Set();
-  data.forEach(item => Object.keys(item).forEach(k => keysSet.add(k)));
+  // 1️⃣ Define preferred order
+  const preferredOrder = [
+    "product","total",
+    "β-Caryophyllene","Limonene","d-Limonene","Myrcene","β-Myrcene",
+    "α-Pinene","β-Pinene","Terpinolene","α-Humulene","Franesene",
+    "Linalool","Selina3,7(11)-diene","trans-Caryophyllene","Selina-4(15),7(11)-diene",
+    "Ocimene","α-Bisabolol","Guaiol","Germacrene","β-Ocimene",
+    "Terpineol","α-Bulnesene","Guaia-6,9-diene","Caryophyllene Oxide","trans-nerolidol",
+    "Camphene","α-Terpinene","3-Carene","β-Selinene","gamma-Terpinene","Camphor",
+    "notes"
+  ];
 
-// 2️⃣ Define column order
-const preferredOrder = [
-  "product","total",
-  "β-Caryophyllene","Limonene","d-Limonene","Myrcene","β-Myrcene",
-  "α-Pinene","β-Pinene","Terpinolene","α-Humulene","Franesene",
-  "Linalool","Selina3,7(11)-diene","trans-Caryophyllene","Selina-4(15),7(11)-diene",
-  "Ocimene","α-Bisabolol","Guaiol","Germacrene","β-Ocimene",
-  "Terpineol","α-Bulnesene","Guaia-6,9-diene","Caryophyllene Oxide","trans-nerolidol",
-  "Camphene","α-Terpinene","3-Carene","β-Selinene","gamma-Terpinene","Camphor",
-  "notes"
-];
-
-// 3️⃣ Sort keys according to preferredOrder
-const keys = Array.from(keysSet).sort((a,b)=>{
-  const iA = preferredOrder.indexOf(a);
-  const iB = preferredOrder.indexOf(b);
-  if(iA!==-1 && iB!==-1) return iA-iB;
-  if(iA!==-1) return -1;
-  if(iB!==-1) return 1;
-  return a.localeCompare(b); // fallback for any extra keys
-});
-
-
-  // 4️⃣ Build rows
-  data.forEach(item=>{
-  const tr = document.createElement('tr');
-  keys.forEach(k=>{
-    let val = item[k]!==undefined ? item[k] : '-';
-    const thType = trHead.querySelector(`th:nth-child(${keys.indexOf(k)+1})`).dataset.type;
-
-    if(thType==='num'){
-      const numVal = parseFloat(val);
-      const isNumeric = !isNaN(numVal);
-      const displayVal = (isNumeric ? numVal.toFixed(3) : val);  // show text if not numeric
-      tr.innerHTML += `<td class="num terpene-cell" data-value="${isNumeric ? numVal : ''}">${displayVal}</td>`;
-    } else {
-      tr.innerHTML += `<td>${val}</td>`;
-    }
+  // 2️⃣ Build table header dynamically
+  const trHead = document.createElement('tr');
+  preferredOrder.forEach(key=>{
+    const th = document.createElement('th');
+    th.textContent = key==="product"?"Product":key==="total"?"Total terpenes (% w/w)":key==="notes"?"Notes / source":key;
+    th.dataset.type = ["total","Myrcene","α-Pinene","β-Pinene","β-Caryophyllene","Limonene","Terpinolene","α-Humulene","α-Bisabolol","Linalool","Ocimene"].includes(key)?'num':'text';
+    trHead.appendChild(th);
   });
-  tbody.appendChild(tr);
-});
+  thead.appendChild(trHead);
+
+  // 3️⃣ Build table rows
+  data.forEach(item=>{
+    const tr = document.createElement('tr');
+    preferredOrder.forEach(k=>{
+      let val = item[k]!==undefined ? item[k] : '';
+      const thType = trHead.children[preferredOrder.indexOf(k)].dataset.type;
+
+      if(thType==='num'){
+        const numVal = parseFloat(val);
+        const isNumeric = !isNaN(numVal);
+        const displayVal = (isNumeric ? numVal.toFixed(3) : val);  // show text if not numeric
+        tr.innerHTML += `<td class="num terpene-cell" data-value="${isNumeric ? numVal : ''}">${displayVal}</td>`;
+      } else {
+        tr.innerHTML += `<td>${val}</td>`;
+      }
+    });
+    tbody.appendChild(tr);
+  });
 
   shadeTerpeneColumns();
   attachSorting();
