@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spreadsheet Viewer</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  th {
+    cursor: pointer;
+    background-color: #f4f4f4;
+    position: sticky;
+    top: 0;
+  }
+  td.shaded {
+    color: #000;
+  }
+</style>
+</head>
+<body>
+
+<h1>Spreadsheet Viewer</h1>
+<table id="spreadsheet">
+  <thead>
+    <tr id="headerRow"></tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+// Google Sheets CSV URL
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTww6fpAXf2v9iAoHDaMmlT44fgIggpFPAKubK9xRsDQfpdnquC3JYt2sL54Mn6Bgl-ld3jjQR7QIXP/pub?gid=869048094&single=true&output=csv";
+
+let tableData = [];
+let sortDirections = [];
+
+// Load CSV and build table
+fetch(csvUrl)
+  .then(response => response.text())
+  .then(csvText => {
+    tableData = parseCSV(csvText);
+    buildTable();
+  });
+
+// Parse CSV into array of arrays
+function parseCSV(csv) {
+  const rows = csv.trim().split("\n");
+  return rows.map(r => r.split(","));
+}
+
+// Build table
+function buildTable() {
+  const headerRow = document.getElementById('headerRow');
+  const tableBody = document.getElementById('tableBody');
+  headerRow.innerHTML = '';
+  tableBody.innerHTML = '';
+
+  // Initialize sort directions
+  sortDirections = new Array(tableData[0].length).fill(null);
+
+  // Header
+  tableData[0].forEach((col, index) => {
+    const th = document.createElement('th');
+    th.textContent = col;
+    th.addEventListener('click', () => sortColumn(index));
+    headerRow.appendChild(th);
+  });
+
+  // Body
+  renderTableBody(tableData.slice(1));
+}
+
+// Render table body
+function renderTableBody(data) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  const columnsToShade = Array.from({length: data[0].length}, (_, i) => i)
+                              .filter(i => i > 1 && i < data[0].length - 1);
+
+  // Compute min/max per column for shading
+  const minMax = {};
+  columnsToShade.forEach(col => {
+    const numbers = data.map(row => parseFloat(row[col])).filter(n => !isNaN(n));
+    minMax[col] = {min: Math.min(...numbers), max: Math.max(...numbers)};
+  });
+
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    row.forEach((cell, idx) => {
+      const td = document.createElement('td');
+      td.textContent = cell;
+
+      if (columnsToShade.includes(idx)) {
+        const val = parseFloat(cell);
+        if (!isNaN(val)) {
+          const {min, max} = minMax[idx];
+          const percent = max === min ? 1 : (val - min) / (max - min);
+          td.style.backgroundColor = `rgba(0, 150, 255, ${percent * 0.5 + 0.1})`;
+          td.classList.add('shaded');
+        }
+      }
+
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// Sort column
+function sortColumn(colIndex) {
+  let direction = sortDirections[colIndex] === 'desc' ? 'asc' : 'desc';
+  sortDirections[colIndex] = direction;
+
+  const bodyData = tableData.slice(1);
+  bodyData.sort((a, b) => {
+    const aVal = parseFloat(a[colIndex]);
+    const bVal = parseFloat(b[colIndex]);
+
+    if (!isNaN(aVal) && !isNaN(bVal)) return direction === 'desc' ? bVal - aVal : aVal - bVal;
+    if (!isNaN(aVal)) return -1;
+    if (!isNaN(bVal)) return 1;
+
+    if (a[colIndex] && b[colIndex]) return direction === 'desc' ? b[colIndex].localeCompare(a[colIndex]) : a[colIndex].localeCompare(b[colIndex]);
+    if (a[colIndex]) return -1;
+    if (b[colIndex]) return 1;
+
+    return 0;
+  });
+
+  renderTableBody(bodyData);
+}
+</script>
+
+</body>
+</html>
