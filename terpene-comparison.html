@@ -116,7 +116,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-    body { 
+  body { 
     font-family: 'Poppins', sans-serif; 
     margin: 0; 
     padding: 20px; 
@@ -141,24 +141,41 @@
     text-align: center; 
     white-space: nowrap; 
     word-wrap: break-word; 
+    /* ensure backgrounds of sticky cells cover content underneath */
+    background-clip: padding-box;
   }
+
+  /* Header cells (sticky to top) */
   th { 
     cursor: pointer; 
     background-color: #f4f4f4; 
     position: sticky; 
     top: 0; 
-    z-index: 3; 
+    z-index: 10;          /* baseline header stacking */
     border-bottom: 2px solid #999; 
     line-height: 1.2em; 
     max-width: 80px; 
   }
-  td:first-child, th:first-child { 
+
+  /* Make the first header cell also sticky to the left and sit above other cells */
+  th:first-child {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 13;          /* highest so it stays visible when overlapping */
+    text-align: left;
+  }
+
+  /* First column cells sticky to the left (below the header but above body cells) */
+  td:first-child {
     position: sticky; 
     left: 0; 
+    z-index: 11;          /* below th:first-child but above normal cells */
     background-color: #f4f4f4; 
     text-align: left; 
-    z-index: 2; 
+    box-shadow: 2px 0 4px rgba(0,0,0,0.05); /* subtle divider while scrolling horizontally */
   }
+
   td:last-child, th:last-child { 
     text-align: left; 
   }
@@ -167,14 +184,14 @@
     width: 80px; 
   }
 
-  /* Row highlight */
+  /* Row highlight (applies across the row) */
   tr.highlighted td { 
     background-color: rgba(255, 230, 150, 0.4); 
   }
 
-  /* Stronger highlight for first column to keep sticky visible */
+  /* Stronger highlight for the first column cell (keeps it visible while sticky) */
   tr.highlighted td:first-child { 
-    background-color: rgba(255, 200, 80, 0.6); 
+    background-color: rgba(255, 200, 80, 0.85) !important; 
     font-weight: 600; 
   }
 
@@ -182,8 +199,8 @@
   tr.italic-row td:not(:first-child) { 
     font-style: italic; 
   }
-
 </style>
+
 </head>
 <body>
 
