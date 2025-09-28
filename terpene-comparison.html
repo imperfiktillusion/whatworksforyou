@@ -141,39 +141,36 @@
     text-align: center; 
     white-space: nowrap; 
     word-wrap: break-word; 
-    /* ensure backgrounds of sticky cells cover content underneath */
     background-clip: padding-box;
   }
 
-  /* Header cells (sticky to top) */
+  /* Header cells */
   th { 
     cursor: pointer; 
     background-color: #f4f4f4; 
     position: sticky; 
     top: 0; 
-    z-index: 10;          /* baseline header stacking */
+    z-index: 10; 
     border-bottom: 2px solid #999; 
     line-height: 1.2em; 
     max-width: 80px; 
   }
 
-  /* Make the first header cell also sticky to the left and sit above other cells */
+  /* First header cell */
   th:first-child {
-    position: sticky;
-    top: 0;
     left: 0;
-    z-index: 13;          /* highest so it stays visible when overlapping */
+    z-index: 13; 
     text-align: left;
   }
 
-  /* First column cells sticky to the left (below the header but above body cells) */
+  /* First column cells */
   td:first-child {
     position: sticky; 
     left: 0; 
-    z-index: 11;          /* below th:first-child but above normal cells */
+    z-index: 11; 
     background-color: #f4f4f4; 
     text-align: left; 
-    box-shadow: 2px 0 4px rgba(0,0,0,0.05); /* subtle divider while scrolling horizontally */
+    box-shadow: 2px 0 4px rgba(0,0,0,0.05);
   }
 
   td:last-child, th:last-child { 
@@ -184,15 +181,16 @@
     width: 80px; 
   }
 
-  /* Row highlight (applies across the row) */
+  /* Row highlight */
   tr.highlighted td { 
     background-color: rgba(255, 230, 150, 0.4); 
   }
 
-  /* Stronger highlight for the first column cell (keeps it visible while sticky) */
+  /* Explicitly paint highlight over sticky first column */
   tr.highlighted td:first-child { 
     background-color: rgba(255, 200, 80, 0.85) !important; 
     font-weight: 600; 
+    z-index: 12;  /* sits above normal cells but below header */
   }
 
   /* Italic rows (excluding first column) */
