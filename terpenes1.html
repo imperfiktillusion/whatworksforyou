@@ -57,12 +57,17 @@
     color: #000;
     width: 80px; 
   }
-  /* highlight effect */
+  /* row highlight */
   tr.highlight {
     background-color: rgba(255, 215, 0, 0.25) !important;
   }
-  /* italic rows */
-  tr.italicised {
+  /* extra highlight just for first column of highlighted row */
+  tr.highlight td:first-child {
+    background-color: rgba(255, 215, 0, 0.55) !important;
+    font-weight: 600;
+  }
+  /* italicised cells (not first column) */
+  td.italicised {
     font-style: italic;
   }
 </style>
@@ -138,11 +143,9 @@ function renderTableBody(data) {
   data.forEach(row => {
     const tr = document.createElement('tr');
 
-    // italicise rows if last column contains "normalised"
+    // check if last column contains "normalised"
     const lastCell = row[row.length - 1] || "";
-    if (lastCell.toLowerCase().includes("normalised")) {
-      tr.classList.add("italicised");
-    }
+    const isNormalised = lastCell.toLowerCase().includes("normalised");
 
     row.forEach((cell, idx) => {
       const td = document.createElement('td');
@@ -161,6 +164,11 @@ function renderTableBody(data) {
             highlightedRow = tr;
           }
         });
+      } else {
+        // italicise only non-first-column cells if row is "normalised"
+        if (isNormalised) {
+          td.classList.add("italicised");
+        }
       }
 
       if (shadedCols.includes(idx)) {
