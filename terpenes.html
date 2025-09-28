@@ -20,17 +20,24 @@
     margin: 0 0 12px 0;
     font-weight: 400;
   }
+
+  /* scroll container for table */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* smooth scroll on iOS/Android */
+  }
+
   table {
     border-collapse: collapse;
     width: 100%;
     font-size: 0.8rem;
+    table-layout: auto;
   }
   th, td {
     border: 1px solid #ccc;
     padding: 4px;
     text-align: center;
     white-space: nowrap;
-    word-wrap: break-word;
   }
   th {
     cursor: pointer;
@@ -39,15 +46,16 @@
     top: 0;
     z-index: 3;
     border-bottom: 2px solid #999;
-    line-height: 1.2em; /* ensures taller header for wrapped text */
+    line-height: 1.2em;
     max-width: 80px;
   }
   td:first-child, th:first-child {
     position: sticky;
     left: 0;
-    background-color: #f4f4f4;
+    background: #f4f4f4;
     text-align: left;
-    z-index: 2;
+    z-index: 6; /* higher than shaded cells */
+    cursor: pointer;
   }
   td:last-child, th:last-child {
     text-align: left;
@@ -56,6 +64,10 @@
     color: #000;
     width: 80px; 
   }
+  /* highlight effect */
+  tr.highlight {
+    background-color: rgba(255, 215, 0, 0.25) !important;
+  }
 </style>
 </head>
 <body>
@@ -63,16 +75,14 @@
 <h1>NZ Medicinal Cannabis Product Terpene Comparison - approx % w/w</h1>
 <h2>List of products taken from the <a href="https://www.health.govt.nz/regulation-legislation/medicinal-cannabis/information-for-health-professionals/minimum-quality-standard-medicinal-cannabis-products" style=text-decoration: underline;" target="_blank">Ministry of Health list of Medicinal cannabis products that meet the minimum quality standard</a>, Product data taken from crowd sourced supplier published Product Data Information Sheets <br>Click column headers to sort. Where total terpenes data was unavailable terpene values have been normalised to 1% w/w.</h2>
 
- 
-     
-
-  
-<table id="spreadsheet">
-  <thead>
-    <tr id="headerRow"></tr>
-  </thead>
-  <tbody id="tableBody"></tbody>
-</table>
+<div class="table-container">
+  <table id="spreadsheet">
+    <thead>
+      <tr id="headerRow"></tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
@@ -135,6 +145,18 @@ function renderTableBody(data) {
       const td = document.createElement('td');
       td.textContent = cell;
 
+      if (idx === 0) {
+        // Make product name clickable to toggle highlight
+        td.addEventListener('click', () => {
+          if (tr.classList.contains('highlight')) {
+            tr.classList.remove('highlight'); // toggle off
+          } else {
+            document.querySelectorAll('#tableBody tr').forEach(r => r.classList.remove('highlight'));
+            tr.classList.add('highlight');
+          }
+        });
+      }
+
       if (shadedCols.includes(idx)) {
         const val = parseFloat(cell);
         if (!isNaN(val)) {
@@ -158,7 +180,6 @@ function renderTableBody(data) {
     tbody.appendChild(tr);
   });
 }
-
 
 // Sort column
 function sortColumn(colIndex) {
