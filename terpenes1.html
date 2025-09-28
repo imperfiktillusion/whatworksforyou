@@ -61,6 +61,10 @@
   tr.highlight {
     background-color: rgba(255, 215, 0, 0.25) !important;
   }
+  /* italic rows */
+  tr.italicised {
+    font-style: italic;
+  }
 </style>
 </head>
 <body>
@@ -82,6 +86,7 @@ const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTww6fpAXf2v9iAo
 
 let tableData = [];
 let sortDirections = [];
+let highlightedRow = null; // track currently highlighted row
 
 // Load CSV
 fetch(csvUrl)
@@ -115,84 +120,4 @@ function buildTable() {
   renderTableBody(bodyData);
 }
 
-// Render table body
-function renderTableBody(data) {
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '';
-
-  const shadedCols = Array.from({length: data[0].length}, (_, i) => i)
-                          .filter(i => i > 0 && i < data[0].length - 1);
-
-  // Compute min/max for shading
-  const minMax = {};
-  shadedCols.forEach(col => {
-    const numbers = data.map(r => parseFloat(r[col])).filter(n => !isNaN(n));
-    minMax[col] = {min: Math.min(...numbers), max: Math.max(...numbers)};
-  });
-
-  data.forEach(row => {
-    const tr = document.createElement('tr');
-    row.forEach((cell, idx) => {
-      const td = document.createElement('td');
-      td.textContent = cell;
-
-      if (idx === 0) {
-        // Make product name clickable to toggle highlight
-        td.addEventListener('click', () => {
-          document.querySelectorAll('#tableBody tr').forEach(r => r.classList.remove('highlight'));
-          tr.classList.add('highlight');
-        });
-      }
-
-      if (shadedCols.includes(idx)) {
-        const val = parseFloat(cell);
-        if (!isNaN(val)) {
-          const {min, max} = minMax[idx];
-          const percent = max === min ? 1 : (val - min) / (max - min);
-          if (idx === 1) {
-            td.style.backgroundColor = `rgba(0, 150, 0, ${percent * 0.5 + 0.1})`;
-          } else {
-            td.style.backgroundColor = `rgba(0, 150, 255, ${percent * 0.5 + 0.1})`;
-          }
-          td.classList.add('shaded');
-        } else if (cell.trim() !== '') {
-          // Text value: shade purple
-          td.style.backgroundColor = 'rgba(150, 0, 150, 0.1)';
-          td.classList.add('shaded');
-        }
-      }
-
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  });
-}
-
-// Sort column
-function sortColumn(colIndex) {
-  let direction = sortDirections[colIndex] === 'desc' ? 'asc' : 'desc';
-  sortDirections[colIndex] = direction;
-
-  let bodyData = tableData.slice(1).filter(r => r[0] && r[0].trim() !== '');
-
-  bodyData.sort((a, b) => {
-    const aVal = parseFloat(a[colIndex]);
-    const bVal = parseFloat(b[colIndex]);
-
-    if (!isNaN(aVal) && !isNaN(bVal)) return direction === 'desc' ? bVal - aVal : aVal - bVal;
-    if (!isNaN(aVal)) return -1;
-    if (!isNaN(bVal)) return 1;
-
-    if (a[colIndex] && b[colIndex]) return direction === 'desc' ? b[colIndex].localeCompare(a[colIndex]) : a[colIndex].localeCompare(b[colIndex]);
-    if (a[colIndex]) return -1;
-    if (b[colIndex]) return 1;
-
-    return 0;
-  });
-
-  renderTableBody(bodyData);
-}
-</script>
-
-</body>
-</html>
+// Render table
