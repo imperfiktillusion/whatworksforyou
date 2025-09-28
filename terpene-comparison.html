@@ -181,17 +181,18 @@
     width: 80px; 
   }
 
-  /* Row highlight */
-  tr.highlighted td { 
-    background-color: rgba(255, 230, 150, 0.4); 
-  }
+ /* Row highlight */
+tr.highlighted td { 
+  background-color: #ffe070 !important; /* strong opaque highlight */
+}
 
-  /* Explicitly paint highlight over sticky first column */
-  tr.highlighted td:first-child { 
-    background-color: rgba(255, 200, 80, 0.85) !important; 
-    font-weight: 600; 
-    z-index: 12;  /* sits above normal cells but below header */
-  }
+/* Explicitly paint highlight over sticky first column */
+tr.highlighted td:first-child { 
+  background-color: #ffcc33 !important; 
+  font-weight: 600; 
+  z-index: 12;  
+}
+
 
   /* Italic rows (excluding first column) */
   tr.italic-row td:not(:first-child) { 
