@@ -1,243 +1,198 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NZ Medicinal Cannabis Product Terpenes</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NZ Medicinal Cannabis Product Terpene Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-body{font-family:Inter, Roboto, Arial, sans-serif;padding:18px;background:#f7f7fb;color:#111}
-h1{font-size:14px;margin-bottom:6px}
-table{border-collapse:collapse;width:100%;background:#fff;border:1px solid #e1e4ef;font-size:10px}
-th, td{padding:8px 10px;border-bottom:1px solid #eef0f6;border-right:1px solid #eef0f6;text-align:center}
-th:last-child, td:last-child{border-right:none;text-align:left}
-th{background:#fafbff;position:sticky;top:0;z-index:2;text-align:center;cursor:pointer}
-th:first-child, td:first-child{text-align:left}
-tr:hover td{background:#fcfdff}
-.note{font-size:10px;color:#444;text-align:left}
-.small{font-size:10px;color:#666}
-.num{white-space:nowrap}
-.terpene-cell{color:#111}
-.terpene-col{width:60px;min-width:60px;max-width:60px}
+  body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 {
+    font-size: 16px;
+    margin: 0 0 4px 0;
+  }
+  h2 {
+    font-size: 10px;
+    margin: 0 0 12px 0;
+    font-weight: 400;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.8rem;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 4px;
+    text-align: center;
+    white-space: nowrap;
+    word-wrap: break-word;
+  }
+  th {
+    cursor: pointer;
+    background-color: #f4f4f4;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    border-bottom: 2px solid #999;
+    line-height: 1.2em;
+    max-width: 80px;
+  }
+  td:first-child, th:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #f4f4f4;
+    text-align: left;
+    z-index: 5; /* raised for mobile */
+    cursor: pointer; /* indicate clickability */
+  }
+  td:last-child, th:last-child {
+    text-align: left;
+  }
+  td.shaded {
+    color: #000;
+    width: 80px; 
+  }
+  /* highlight effect */
+  tr.highlight {
+    background-color: rgba(255, 215, 0, 0.25) !important;
+  }
 </style>
 </head>
 <body>
-<h1>NZ Medicinal Cannabis Terpenes</h1>
-<p class="small">Click column headers to sort. Where total terpenes data was unavailable terpene values have been normalised to 1% w/w.</p>
 
-<table id="terpTable">
- <thead>
-  <tr>
-    <th data-type="text">Product</th>
-    <th class="terpene-col" data-type="num">Total terpenes (% w/w)</th>
-    <th class="terpene-col" data-type="num">β-Caryophyllene</th>
-    <th class="terpene-col" data-type="num">Limonene</th>
-    <th class="terpene-col" data-type="num">d-Limonene</th>
-    <th class="terpene-col" data-type="num">Myrcene</th>
-    <th class="terpene-col" data-type="num">β-Myrcene</th>
-    <th class="terpene-col" data-type="num">α-Pinene</th>
-    <th class="terpene-col" data-type="num">β-Pinene</th>
-    <th class="terpene-col" data-type="num">Terpinolene</th>
-    <th class="terpene-col" data-type="num">α-Humulene</th>
-    <th class="terpene-col" data-type="num">Franesene</th>
-    <th class="terpene-col" data-type="num">Linalool</th>
-    <th class="terpene-col" data-type="num">Selina3,7(11)-diene</th>
-    <th class="terpene-col" data-type="num">trans-Caryophyllene</th>
-    <th class="terpene-col" data-type="num">Selina-4(15),7(11)-diene</th>
-    <th class="terpene-col" data-type="num">Ocimene</th>
-    <th class="terpene-col" data-type="num">α-Bisabolol</th>
-    <th class="terpene-col" data-type="num">Guaiol</th>
-    <th class="terpene-col" data-type="num">Germacrene</th>
-    <th class="terpene-col" data-type="num">β-Ocimene</th>
-    <th class="terpene-col" data-type="num">Terpineol</th>
-    <th class="terpene-col" data-type="num">α-Bulnesene</th>
-    <th class="terpene-col" data-type="num">Guaia-6,9-diene</th>
-    <th class="terpene-col" data-type="num">Caryophyllene Oxide</th>
-    <th class="terpene-col" data-type="num">trans-nerolidol</th>
-    <th class="terpene-col" data-type="num">Camphene</th>
-    <th class="terpene-col" data-type="num">α-Terpinene</th>
-    <th class="terpene-col" data-type="num">3-Carene</th>
-    <th class="terpene-col" data-type="num">β-Selinene</th>
-    <th class="terpene-col" data-type="num">gamma-Terpinene</th>
-    <th class="terpene-col" data-type="num">Camphor</th>
-    <th data-type="text">Notes / source</th>
-  </tr>
-</thead>
+<h1>NZ Medicinal Cannabis Product Terpene Comparison - approx % w/w</h1>
+<h2>List of products taken from the <a href="https://www.health.govt.nz/regulation-legislation/medicinal-cannabis/information-for-health-professionals/minimum-quality-standard-medicinal-cannabis-products" style=text-decoration: underline;" target="_blank">Ministry of Health list of Medicinal cannabis products that meet the minimum quality standard</a>, Product data taken from crowd sourced supplier published Product Data Information Sheets <br>Click column headers to sort. Where total terpenes data was unavailable terpene values have been normalised to 1% w/w.</h2>
 
-  <tbody>
-  </tbody>
+<table id="spreadsheet">
+  <thead>
+    <tr id="headerRow"></tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
 </table>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-const dataBatch1 = [
-{product:"ANTG Duke", total:"1.340", "β-Caryophyllene":"0.390", Limonene:"0.251", Myrcene:"0.090", "β-Pinene":"0.080", "α-Humulene":"0.170", Linalool:"0.170", Guaiol:"0.070", notes:"ANTG-Terpene_Docs_DUKE_v2.pdf"},
-{product:"ANTG Eve", total:"0.980", "β-Caryophyllene":"0.170", Limonene:"0.090", Myrcene:"0.330", "α-Pinene":"0.050", "β-Pinene":"0.090", Terpinolene:"0.140", Franesene:"0.040", "β-Ocimene":"0.020", notes:"ANTG KIKUYA Terpene profiles.pdf"},
-{product:"ANTG Juno", total:"1.270", "β-Caryophyllene":"0.353", "d-Limonene":"0.119", Myrcene:"0.460", "α-Pinene":"0.020", "β-Pinene":"0.017", "α-Humulene":"0.126", Linalool:"0.056", Ocimene:"0.047", Guaiol:"0.020", notes:"ANTG-Juno-Terpene-Profile-Doc-v1.pdf"},
-{product:"ANTG Mariposa", total:"0.960", "β-Caryophyllene":"0.170", Limonene:"0.170", Myrcene:"0.070", "α-Pinene":"0.040", "β-Pinene":"0.070", "α-Humulene":"0.080", Linalool:"0.150", Franesene:"0.110", Ocimene:"0.030", notes:"ANTG KIKUYA Terpene profiles.pdf"},
-{product:"ANTG Rocky", total:"1.360", "β-Caryophyllene":"0.125", "d-Limonene":"0.235", Myrcene:"0.027", "β-Pinene":"0.069", "α-Humulene":"0.056", Linalool:"0.069", Franesene:"0.458", Ocimene:"0.194", "α-Bisabolol":"0.125", "β-Selinene":"0.027", notes:"ANTG KIKUYA Terpene profiles.pdf"},
-{product:"ANTG Solace", total:"2.420", "β-Caryophyllene":"0.290", Limonene:"0.431", Myrcene:"0.409", "α-Pinene":"0.109", "β-Pinene":"0.169", Terpinolene:"0.140", "α-Humulene":"0.300", Linalool:"0.220", Ocimene:"0.131", Guaiol:"0.109", "Guaia-6,9-diene":"0.109", notes:"ANTG KIKUYA Terpene profiles.pdf"},
-{product:"Aurora Equiposa", total:"1.800", Myrcene:"0.936", "β-Myrcene":"0.612", "α-Pinene":"0.126", "α-Humulene":"0.090", Guaiol:"0.036", notes:"Aurora_NZ_Terpene_Profile_Flyer.pdf Estimated from terpene wheel"},
-{product:"Aurora Luminarium", total:"1.500", Myrcene:"0.405", "β-Myrcene":"0.240", "α-Pinene":"0.135", Terpinolene:"0.525", Ocimene:"0.165", notes:"Aurora_NZ_Terpene_Profile_Flyer.pdf Estimated from terpene wheel"},
-{product:"Aurora Sedaprem", total:"1.800", Limonene:"0.432", Myrcene:"0.792", "α-Pinene":"0.126", "α-Humulene":"0.198", Linalool:"0.234", notes:"Aurora_NZ_Terpene_Profile_Flyer.pdf Estimated from terpene wheel"},
-{product:"Bloom JFG", total:"1.000", "β-Caryophyllene":"0.320", Limonene:"0.130", Myrcene:"0.210", "α-Pinene":"0.040", "α-Humulene":"0.080", Linalool:"0.130", Franesene:"0.050", Ocimene:"0.010", notes:"Bloom_JFG_Strain_Info_Sheet_Final.pdf Estimated from terpene wheel. normalised"},
-{product:"Bloom Pink Kush", total:"1.000", "β-Caryophyllene":"0.280", Limonene:"0.100", Myrcene:"0.130", "α-Pinene":"0.020", "α-Humulene":"0.070", Linalool:"0.220", Franesene:"0.070", Ocimene:"0.050", notes:"Bloom_Pink_Kush_Strain_Info_Sheet_Final.pdf Estimated from terpene wheel. normalised"},
-{product:"Cannasouth Cumulus T17", total:"1.000", "β-Caryophyllene":"0.260", Limonene:"0.340", Myrcene:"0.110", "α-Pinene":"0.060", "β-Pinene":"0.050", Terpinolene:"0.070", notes:"CumulusT17Info_Sheet.pdf Estimated from terpene wheel. normalised"},
-{product:"Cannasouth Symetis B52 T17", total:"1.000", "β-Caryophyllene":"0.120", Limonene:"0.100", Myrcene:"0.600", "α-Pinene":"0.030", "β-Pinene":"0.030", Terpinolene:"0.050", "α-Humulene":"0.050", notes:"Cannasouth-Symetis-T17-Terpenes.pdf Estimated from terpene wheel. normalised"},
-{product:"Flowerman Wappa", notes:""},
-{product:"HealthHouse Cannabis Tea", notes:""},
-{product:"Helius Amelia", total:"1.500", "β-Caryophyllene":"0.090", "d-Limonene":"0.105", Myrcene:"0.225", "β-Myrcene":"0.060", "α-Pinene":"0.105", "β-Pinene":"0.450", "α-Humulene":"0.300", notes:"Helius_AmeliaTHC15_DocInfoSheet_2pgr_DIGITAL.pdf"},
-{product:"Helius DK Dawn (Duke)", total:"2.162", "β-Caryophyllene":"0.735", Limonene:"0.541", Myrcene:"0.216", "α-Pinene":"0.108", Terpinolene:"0.195", notes:"Helius_DKDawn_DocInfoSheet_2pgr_DIGITAL.pdf"},
-{product:"Helius DK Dusk (Frosted Lemon Angel)", total:"1.949", "β-Caryophyllene":"0.799", Limonene:"0.253", Myrcene:"0.312", "α-Pinene":"0.195", notes:"Helius_DKDusk_DocInfoSheet_2pgr_DIGITAL"},
-{product:"Kikuya Arroyo", total:"2.170", "β-Caryophyllene":"0.269", "d-Limonene":"0.111", Myrcene:"0.269", "β-Myrcene":"0.061", "α-Pinene":"0.061", "β-Pinene":"0.760", "α-Humulene":"0.100", Linalool:"0.069", Ocimene:"0.089", "α-Bisabolol":"0.119", Guaiol:"0.039", Germacrene:"0.020", "β-Ocimene":"0.011", Terpineol:"0.030", "α-Bulnesene":"0.030", notes:"ANTG KIKUYA Terpene profiles.pdf"},
-{product:"Kikuya Cove", notes:""},
-{product:"Kikuya Dune", total:"1.170", "β-Caryophyllene":"0.123", "d-Limonene":"0.098", Myrcene:"0.257", "β-Myrcene":"0.362", "α-Pinene":"0.125", "α-Humulene":"0.033", Linalool:"0.035", Ocimene:"0.012", "α-Bisabolol":"0.027", Guaiol:"0.023", "β-Ocimene":"0.009", Terpineol:"0.027", notes:"ANTG KIKUYA Terpene profiles.pdf"},
-{product:"Kikuya Peak", total:"1.450", "β-Caryophyllene":"0.322", Limonene:"0.204", Myrcene:"0.345", "β-Myrcene":"0.048", "α-Pinene":"0.058", "α-Humulene":"0.120", Linalool:"0.090", Ocimene:"0.077", "α-Bisabolol":"0.074", Guaiol:"0.036", "β-Ocimene":"0.019", Terpineol:"0.016", "α-Bulnesene":"0.012", notes:"ANTG KIKUYA Terpene profiles.pdf"},
-{product:"Medleaf GG4", total:"1.000", "β-Caryophyllene":"0.160", Limonene:"0.080", Myrcene:"0.340", "α-Pinene":"0.050", "α-Humulene":"0.240", Franesene:"0.040", notes:"Medleaf-High-THC-GG4-Terpenes.pdf Estimated from terpene wheel. normalised"},
-{product:"Medleaf GSCx", total:"1.000", "β-Caryophyllene":"0.240", Limonene:"0.240", Myrcene:"0.160", "α-Pinene":"0.060", "α-Humulene":"0.080", Terpinolene:"0.120", notes:"Medleaf_GSCx_Strain_Info_Sheet_November_2024_Final.pdf Estimated from terpene wheel. normalised"},
-{product:"Medleaf LL Kush", total:"1.000", "β-Caryophyllene":"0.340", Limonene:"0.130", Myrcene:"0.170", "α-Pinene":"0.050", "α-Humulene":"0.160", Linalool:"0.050", Ocimene:"0.030", notes:"Medleaf-LL-Kush-Strain-Infosheet-Final.pdf Estimated from terpene wheel. normalised"},
-{product:"Medleaf MAC-1", total:"1.000", "β-Caryophyllene":"0.150", Limonene:"0.210", Myrcene:"0.040", "α-Pinene":"0.160", "α-Humulene":"0.040", Linalool:"0.180", Franesene:"0.070", Ocimene:"0.050", "α-Bisabolol":"0.040", notes:"Medleaf_MAC-1_Strain_Info_Sheet_Final.pdf Estimated from terpene wheel. normalised"},
-{product:"Medleaf Runtz M", total:"1.000", "β-Caryophyllene":"0.140", Limonene:"0.320", Myrcene:"0.060", "α-Pinene":"0.130", "α-Humulene":"0.100", Linalool:"0.070", Franesene:"0.040", Ocimene:"0.040", notes:"Medleaf_Runtz_M_Strain_Infosheet_Final.pdf Estimated from terpene wheel. normalised"},
-{product:"Medleaf Tropicana", total:"1.000", Limonene:"0.070", Myrcene:"0.060", "α-Humulene":"0.110", Linalool:"0.130", Franesene:"0.060", "α-Bisabolol":"0.470", notes:"Medleaf_Tropicana_Strain_Info_Sheet_Final.pdf Estimated from terpene wheel. normalised"},
-{product:"Medleaf Zour Apple", total:"1.000", "β-Caryophyllene":"0.170", Limonene:"0.040", Myrcene:"0.110", "α-Pinene":"0.050", "β-Pinene":"0.330", "α-Humulene":"0.040", Linalool:"0.040", Ocimene:"0.040", notes:"Medleaf-Zour-Apple-Terpenes.pdf Estimated from terpene wheel. normalised"},
-{product:"Rua THC 18 White Widow", total:"1.000", notes:"RUA_NZ_-_Product_Range_1.pdf Total %w/w only, listed terpenes but no numbers"},
-{product:"Medleaf Shishkaberry", total:"1.000", "β-Caryophyllene":"0.140", Limonene:"0.090", Myrcene:"0.310", "β-Myrcene":"0.120", "α-Humulene":"0.050", Linalool:"0.090", Franesene:"0.160", Ocimene:"0.020", notes:"Medleaf-Shishkaberry-Terpenes.pdf Estimated from terpene wheel. normalised"},
-{product:"Rua THC 24", total:"1.700", notes:"RUA_NZ_-_Product_Range_1.pdf Total %w/w only, listed terpenes but no numbers"},
-{product:"Rua THC 26", total:"1.200", notes:"RUA_NZ_-_Product_Range_1.pdf Total %w/w only, listed terpenes but no numbers"},
-{product:"Smith Sativa", total:"1.607", "β-Caryophyllene":"0.264", "d-Limonene":"0.223", Myrcene:"0.256", "β-Myrcene":"0.477", "α-Pinene":"0.140", "α-Humulene":"0.084", Ocimene:"0.116", notes:"Smith_Sativa_THC18.5_Terpenes.pdf"},
-{product:"Smith Indica [J4F]", total:"2.147", "β-Caryophyllene":"0.125", "d-Limonene":"0.058", Myrcene:"0.601", "β-Myrcene":"0.861", "α-Pinene":"0.273", "α-Humulene":"0.039", Linalool:"0.041", Franesene:"0.058", notes:"Smith_Indica_THC18.5_Terpenes.pdf"}
-];
+// CSV URL
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTww6fpAXf2v9iAoHDaMmlT44fgIggpFPAKubK9xRsDQfpdnquC3JYt2sL54Mn6Bgl-ld3jjQR7QIXP/pub?gid=869048094&single=true&output=csv";
 
+let tableData = [];
+let sortDirections = [];
 
-
-// Pretty header names
-const headerPrettyMap = {
-  product: "Product",
-  total: "Total terpenes (% w/w)",
-  myrcene: "Myrcene",
-  alphaPinene: "α-Pinene",
-  betaPinene: "β-Pinene",
-  betaCaryophyllene: "β-Caryophyllene",
-  limonene: "Limonene",
-  terpinolene: "Terpinolene",
-  alphaHumulene: "α-Humulene",
-  alphaBisabolol: "α-Bisabolol",
-  linalool: "Linalool",
-  ocimene: "Ocimene",
-  notes: "Notes / source"
-};
-
-// Build dynamic table
-function buildDynamicTable(data){
-  const table = document.getElementById('terpTable');
-  const tbody = table.querySelector('tbody');
-  const thead = table.querySelector('thead');
-  tbody.innerHTML = '';
-  thead.innerHTML = '';
-
-  if(!data.length) return;
-
-  // 1️⃣ Define preferred order
-  const preferredOrder = [
-    "product","total",
-    "β-Caryophyllene","Limonene","d-Limonene","Myrcene","β-Myrcene",
-    "α-Pinene","β-Pinene","Terpinolene","α-Humulene","Franesene",
-    "Linalool","Selina3,7(11)-diene","trans-Caryophyllene","Selina-4(15),7(11)-diene",
-    "Ocimene","α-Bisabolol","Guaiol","Germacrene","β-Ocimene",
-    "Terpineol","α-Bulnesene","Guaia-6,9-diene","Caryophyllene Oxide","trans-nerolidol",
-    "Camphene","α-Terpinene","3-Carene","β-Selinene","gamma-Terpinene","Camphor",
-    "notes"
-  ];
-
-  // 2️⃣ Build table header dynamically
-  const trHead = document.createElement('tr');
-  preferredOrder.forEach(key=>{
-    const th = document.createElement('th');
-    th.textContent = key==="product"?"Product":key==="total"?"Total terpenes (% w/w)":key==="notes"?"Notes / source":key;
-    th.dataset.type = ["total","Myrcene","α-Pinene","β-Pinene","β-Caryophyllene","Limonene","Terpinolene","α-Humulene","α-Bisabolol","Linalool","Ocimene"].includes(key)?'num':'text';
-    trHead.appendChild(th);
+// Load CSV
+fetch(csvUrl)
+  .then(res => res.text())
+  .then(text => {
+    tableData = Papa.parse(text, {header: false}).data;
+    buildTable();
   });
-  thead.appendChild(trHead);
 
-  // 3️⃣ Build table rows
-  data.forEach(item=>{
+// Build table
+function buildTable() {
+  const headerRow = document.getElementById('headerRow');
+  const tableBody = document.getElementById('tableBody');
+  headerRow.innerHTML = '';
+  tableBody.innerHTML = '';
+
+  // Filter rows with empty first column
+  let bodyData = tableData.slice(1).filter(r => r[0] && r[0].trim() !== '');
+
+  // Initialize sort directions
+  sortDirections = new Array(tableData[0].length).fill(null);
+
+  // Header
+  tableData[0].forEach((col, index) => {
+    const th = document.createElement('th');
+    th.textContent = col;
+    th.addEventListener('click', () => sortColumn(index));
+    headerRow.appendChild(th);
+  });
+
+  renderTableBody(bodyData);
+}
+
+// Render table body
+function renderTableBody(data) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  const shadedCols = Array.from({length: data[0].length}, (_, i) => i)
+                          .filter(i => i > 0 && i < data[0].length - 1);
+
+  // Compute min/max for shading
+  const minMax = {};
+  shadedCols.forEach(col => {
+    const numbers = data.map(r => parseFloat(r[col])).filter(n => !isNaN(n));
+    minMax[col] = {min: Math.min(...numbers), max: Math.max(...numbers)};
+  });
+
+  data.forEach(row => {
     const tr = document.createElement('tr');
-    preferredOrder.forEach(k=>{
-      let val = item[k]!==undefined ? item[k] : '';
-      const thType = trHead.children[preferredOrder.indexOf(k)].dataset.type;
+    row.forEach((cell, idx) => {
+      const td = document.createElement('td');
+      td.textContent = cell;
 
-      if(thType==='num'){
-        const numVal = parseFloat(val);
-        const isNumeric = !isNaN(numVal);
-        const displayVal = (isNumeric ? numVal.toFixed(3) : val);  // show text if not numeric
-        tr.innerHTML += `<td class="num terpene-cell" data-value="${isNumeric ? numVal : ''}">${displayVal}</td>`;
-      } else {
-        tr.innerHTML += `<td>${val}</td>`;
+      if (idx === 0) {
+        // Make product name clickable to toggle highlight
+        td.addEventListener('click', () => {
+          document.querySelectorAll('#tableBody tr').forEach(r => r.classList.remove('highlight'));
+          tr.classList.add('highlight');
+        });
       }
+
+      if (shadedCols.includes(idx)) {
+        const val = parseFloat(cell);
+        if (!isNaN(val)) {
+          const {min, max} = minMax[idx];
+          const percent = max === min ? 1 : (val - min) / (max - min);
+          if (idx === 1) {
+            td.style.backgroundColor = `rgba(0, 150, 0, ${percent * 0.5 + 0.1})`;
+          } else {
+            td.style.backgroundColor = `rgba(0, 150, 255, ${percent * 0.5 + 0.1})`;
+          }
+          td.classList.add('shaded');
+        } else if (cell.trim() !== '') {
+          // Text value: shade purple
+          td.style.backgroundColor = 'rgba(150, 0, 150, 0.1)';
+          td.classList.add('shaded');
+        }
+      }
+
+      tr.appendChild(td);
     });
     tbody.appendChild(tr);
   });
-
-  shadeTerpeneColumns();
-  attachSorting();
 }
 
-// Shade numeric columns
-function shadeTerpeneColumns(){
-  const table = document.getElementById('terpTable');
-  const tbody = table.querySelector('tbody');
-  const ths = table.querySelectorAll('th');
-  const terpCols = Array.from(ths).map((th,i)=>i).filter(i=>ths[i].dataset.type==='num');
+// Sort column
+function sortColumn(colIndex) {
+  let direction = sortDirections[colIndex] === 'desc' ? 'asc' : 'desc';
+  sortDirections[colIndex] = direction;
 
-  terpCols.forEach(colIdx=>{
-    const cells = Array.from(tbody.rows).map(r=>r.cells[colIdx]);
-    const numericCells = cells.filter(c=>parseFloat(c.dataset.value)>0);
-    if(!numericCells.length) return;
-    const values = numericCells.map(c=>parseFloat(c.dataset.value));
-    const minVal = Math.min(...values);
-    const maxVal = Math.max(...values);
-    const range = maxVal-minVal || 1;
-    cells.forEach(cell=>{
-      const val = parseFloat(cell.dataset.value);
-      if(isNaN(val)||val<=0) cell.style.backgroundColor='';
-      else{
-        const intensity = 0.3 + 0.7*((val-minVal)/range);
-        cell.style.backgroundColor=`rgba(0,128,0,${intensity})`;
-      }
-    });
-  });
-}
+  let bodyData = tableData.slice(1).filter(r => r[0] && r[0].trim() !== '');
 
-// Sorting
-function attachSorting(){
-  const table = document.getElementById('terpTable');
-  const ths = table.querySelectorAll('th');
-  ths.forEach((th,idx)=>{
-    th.onclick = ()=>{
-      const type = th.dataset.type || 'text';
-      sortTableByColumn(idx,type);
-      shadeTerpeneColumns();
-    }
+  bodyData.sort((a, b) => {
+    const aVal = parseFloat(a[colIndex]);
+    const bVal = parseFloat(b[colIndex]);
+
+    if (!isNaN(aVal) && !isNaN(bVal)) return direction === 'desc' ? bVal - aVal : aVal - bVal;
+    if (!isNaN(aVal)) return -1;
+    if (!isNaN(bVal)) return 1;
+
+    if (a[colIndex] && b[colIndex]) return direction === 'desc' ? b[colIndex].localeCompare(a[colIndex]) : a[colIndex].localeCompare(b[colIndex]);
+    if (a[colIndex]) return -1;
+    if (b[colIndex]) return 1;
+
+    return 0;
   });
 
-  function parseVal(v,type){ return type==='num'? (isNaN(parseFloat(v))?-1:parseFloat(v)) : v.toString().toLowerCase(); }
-
-  function sortTableByColumn(colIdx,type){
-    const tbody = table.tBodies[0];
-    const rows = Array.from(tbody.rows);
-    const asc = table.dataset.sortCol==colIdx && table.dataset.sortDir=='desc'?false:true;
-    rows.sort((a,b)=>{
-      const A=parseVal(a.cells[colIdx].dataset.value||a.cells[colIdx].textContent,type);
-      const B=parseVal(b.cells[colIdx].dataset.value||b.cells[colIdx].textContent,type);
-      if(type==='num') return asc?A-B:B-A;
-      return asc?(A<B?-1:1):(A<B?1:-1);
-    });
-    rows.forEach(r=>tbody.appendChild(r));
-    table.dataset.sortCol=colIdx;
-    table.dataset.sortDir=desc?'asc':'desc';
-  }
+  renderTableBody(bodyData);
 }
-
-// Init
-buildDynamicTable(dataBatch1);
 </script>
+
 </body>
 </html>
