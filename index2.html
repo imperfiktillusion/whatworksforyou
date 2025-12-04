@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base href="https://imperfiktillusion.github.io/whatworksforyou/">
+  <title>What works for you?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      font-size: 12px;
+    }
+
+    #top-section {
+      min-height: 100vh;
+      border-bottom: 2px solid #ccc;
+      margin-bottom: 20px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 32px;
+      text-align: left;
+      margin-top: 8vh;
+      padding: 0px 50px;
+      font-weight: 300;
+    }
+
+    .subheader-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 24px;
+      text-align: left;
+      padding: 20px 50px;
+      font-weight: 300;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #condition-select {
+      font-family: 'Poppins', sans-serif;
+      font-size: 17px;
+      padding: 2px 5px;
+      border: 1px solid #666;
+      border-radius: 5px;
+      min-width: 300px;
+    }
+
+    .accordion {
+      width: 90%;
+      margin: 20px auto;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .accordion-item {
+      border: 1px solid #ddd;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      background: #f8f8f8;
+      padding: 15px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #434343;
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      background: white;
+      padding: 0 15px;
+    }
+
+    .accordion-content.active {
+      max-height: 400px;
+      padding: 15px;
+    }
+
+    .split-container {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      padding-bottom: 15px;
+    }
+
+    .split-cell {
+      flex: 1;
+      padding: 15px;
+      background: white;
+      min-height: 350px;
+    }
+
+    .split-cell-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    #loading {
+      padding: 10px;
+      font-style: italic;
+      color: #666;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="top-section">
+    <h1 class="header-text">
+      Crowd sourcing answers. Which medical cannabis options work best?
+      <span style="font-size: 24px">– Now loading live NZ patient data</span>
+    </h1>
+
+    <div class="subheader-text">
+      The crowd says this works for our
+      <select id="condition-select">
+        <option value="">Select condition...</option>
+      </select>
+      <div id="condition-report-count"></div>
+    </div>
+
+    <div class="accordion" id="product-accordion"></div>
+  </div>
+
+  <div id="loading">Loading live spreadsheet data…</div>
+
+  <script>
+    /* ------------------------------------------------------
+      GOOGLE SHEETS JSON FETCHER (gviz API)
+      Completely replaces your broken HTML scraping.
+    ------------------------------------------------------ */
+    async function fetchSheetJSON(url) {
+      try {
+        const match = url.match(/\/spreadsheets\/d\/e\/([^\/]+)/);
+        if (!match) throw new Error("Invalid URL");
+
+        const sheetId = match[1];
+        const gid = new URL(url).searchParams.get("gid") || "0";
+
+        const jsonUrl =
+          `https://docs.google.com/spreadsheets/d/e/${sheetId}/gviz/tq?gid=${gid}&tqx=out:json`;
+
+        const response = await fetch(jsonUrl, { cache: 'no-store' });
+        const text = await response.text();
+
+        const json = JSON.parse(
+          text.replace(/.*setResponse\(/, "").replace(/\);\s*$/, "")
+        );
+
+        return json.table;
+
+      } catch (e) {
+        console.error("JSON fetch error:", e);
+        return null;
+      }
+    }
+
+    /* ------------------------------------------------------
+      Convert Google Sheets JSON → 2D array for easy use
+    ------------------------------------------------------ */
+    function sheetToRows(table) {
+      if (!table) return [];
+
+      const cols = table.cols.map(c => c.label || "");
+      const rows = table.rows.map(r => (r.c || []).map(c => (c ? c.v : "")));
+
+      return [cols, ...rows];
+    }
+
+    /* ------------------------------------------------------
+      DATA FETCH (all 3 spreadsheets)
+    ------------------------------------------------------ */
+    const url1 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTww6fpAXf2v9iAoHDaMmlT44fgIggpFPAKubK9xRsDQfpdnquC3JYt2sL54Mn6Bgl-ld3jjQR7QIXP/pubhtml?gid=0&single=true";
+    const url2 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDPYraFDktD7EtJ7T06_FGu4fszOWQ0cA0Yr0DsP3B6N9WYRofdReaZKurPsWEMW1-kelb9RTGGgps/pubhtml?gid=0&single=true";
+    const url3 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDPYraFDktD7EtJ7T06_FGu4fszOWQ0cA0Yr0DsP3B6N9WYRofdReaZKurPsWEMW1-kelb9RTGGgps/pubhtml?gid=1303283638&single=true";
+
+    let products = [];
+    let conditions = [];
+    let effectiveness = [];
+
+    async function loadAll() {
+      document.getElementById("loading").textContent = "Loading…";
+
+      const t1 = sheetToRows(await fetchSheetJSON(url1));
+      const t2 = sheetToRows(await fetchSheetJSON(url2));
+      const t3 = sheetToRows(await fetchSheetJSON(url3));
+
+      products = t1;
+      conditions = t2;
+      effectiveness = t3;
+
+      document.getElementById("loading").style.display = "none";
+
+      populateConditionSelector();
+      populateProductList();
+    }
+
+    /* ------------------------------------------------------
+      CONDITIONS DROPDOWN
+    ------------------------------------------------------ */
+    function populateConditionSelector() {
+      const select = document.getElementById("condition-select");
+
+      conditions.slice(2).forEach(r => {
+        if (!r[0]) return;
+        const opt = document.createElement("option");
+        opt.value = r[0];
+        opt.textContent = r[0];
+        select.appendChild(opt);
+      });
+
+      select.addEventListener("change", updateScores);
+    }
+
+    /* ------------------------------------------------------
+      PRODUCT ACCORDION
+    ------------------------------------------------------ */
+    function populateProductList() {
+      const container = document.getElementById("product-accordion");
+
+      products.slice(2).forEach(r => {
+        const product = r[0];
+        if (!product) return;
+
+        const item = document.createElement("div");
+        item.className = "accordion-item";
+
+        item.innerHTML = `
+          <div class="accordion-header">
+            <span>${product}</span>
+            <span class="score">0</span>
+          </div>
+          <div class="accordion-content">
+            <div class="split-container">
+              <div class="split-cell">
+                <div class="split-cell-title">Effective for <span class="cname"></span></div>
+                <div class="effectiveness-content"></div>
+              </div>
+              <div class="split-cell">
+                <div class="split-cell-title">Undesired effects</div>
+                <div class="effects-content"></div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        item.querySelector(".accordion-header").addEventListener("click", () => {
+          const c = item.querySelector(".accordion-content");
+          c.classList.toggle("active");
+
+          if (c.classList.contains("active")) loadProductCharts(product, item);
+        });
+
+        container.appendChild(item);
+      });
+    }
+
+    /* ------------------------------------------------------
+      SCORE CALCULATION + REORDER
+    ------------------------------------------------------ */
+    function updateScores() {
+      const condition = document.getElementById("condition-select").value;
+      const acc = document.getElementById("product-accordion");
+
+      [...acc.children].forEach(item => {
+        const product = item.querySelector(".accordion-header span").textContent;
+
+        const score = getScore(product, condition);
+        item.querySelector(".score").textContent = score;
+
+        item.dataset.score = score;
+      });
+
+      [...acc.children]
+        .sort((a, b) => b.dataset.score - a.dataset.score)
+        .forEach(el => acc.appendChild(el));
+    }
+
+    function getScore(product, condition) {
+      if (!condition) return 0;
+      const header = effectiveness[1];
+
+      const col = header.indexOf(product);
+      if (col === -1) return 0;
+
+      let score = 0;
+
+      effectiveness.slice(2).forEach(r => {
+        if (r[0] === condition && r[1] === "Score")
+          score = r[col] || 0;
+      });
+
+      return score;
+    }
+
+    /* ------------------------------------------------------
+      CHART LOADING (Effectiveness + Side Effects)
+    ------------------------------------------------------ */
+    function loadProductCharts(product, item) {
+      const condition = document.getElementById("condition-select").value;
+      item.querySelector(".cname").textContent = condition;
+
+      const eff = item.querySelector(".effectiveness-content");
+      eff.innerHTML = "";
+      eff.appendChild(makeEffectivenessChart(product, condition));
+
+      const side = item.querySelector(".effects-content");
+      side.innerHTML = "";
+      side.appendChild(makeSideEffectsChart(product));
+    }
+
+    /* ------------------------------------------------------
+      EFFECTIVENESS CHART (Bar)
+    ------------------------------------------------------ */
+    function makeEffectivenessChart(product, condition) {
+      const canvas = document.createElement("canvas");
+
+      const header = effectiveness[1];
+      const col = header.indexOf(product);
+
+      const effects = ["Not effective", "Mild benefit", "Good benefit", "This is exactly what I need"];
+      let data = [0, 0, 0, 0];
+
+      effectiveness.slice(2).forEach(r => {
+        if (r[0] === condition) {
+          const idx = effects.indexOf(r[1]);
+          if (idx >= 0) data[idx] = r[col] || 0;
+        }
+      });
+
+      new Chart(canvas, {
+        type: "bar",
+        data: {
+          labels: effects,
+          datasets: [{
+            data,
+            backgroundColor: ["#bbb", "#e4f4c7", "#c1e99a", "#92d737"]
+          }]
+        },
+        options: { plugins: { legend: { display: false } } }
+      });
+
+      return canvas;
+    }
+
+    /* ------------------------------------------------------
+      SIDE EFFECTS CHART (Pie)
+    ------------------------------------------------------ */
+    function makeSideEffectsChart(product) {
+      const canvas = document.createElement("canvas");
+
+      const header = effectiveness[1];
+      const col = header.indexOf(product);
+
+      let labels = [];
+      let data = [];
+
+      effectiveness.slice(2).forEach(r => {
+        if (r[0] === "Undesired effects" && r[1] !== "Only acceptable side effects") {
+          if (r[col] > 0) {
+            labels.push(r[1]);
+            data.push(r[col]);
+          }
+        }
+      });
+
+      new Chart(canvas, {
+        type: "pie",
+        data: { labels, datasets: [{ data }] },
+        options: { plugins: { legend: { position: "right" } } }
+      });
+
+      return canvas;
+    }
+
+    window.addEventListener("load", loadAll);
+  </script>
+
+</body>
+
+</html>
