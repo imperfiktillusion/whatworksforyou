@@ -48,10 +48,20 @@
     #condition-select {
       font-family: 'Poppins', sans-serif;
       font-size: 17px;
+      font-weight: 400;
       padding: 2px 5px;
       border: 1px solid #666;
       border-radius: 5px;
       min-width: 300px;
+    }
+
+    #condition-report-count {
+      display: inline-block;
+      margin-left: 50px;
+      font-size: 14px;
+      color: #666;
+      font-weight: 300;
+      font-family: 'Poppins', sans-serif;
     }
 
     .accordion {
@@ -76,6 +86,17 @@
       align-items: center;
       font-size: 14px;
       color: #434343;
+      padding-top: 16px;
+      padding-bottom: 12px;
+    }
+
+    .accordion-header span:first-child {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .accordion-header:hover {
+      background: #f0f0f0;
     }
 
     .accordion-content {
@@ -87,8 +108,57 @@
     }
 
     .accordion-content.active {
-      max-height: 400px;
+      max-height: 520px;
       padding: 15px;
+      padding-bottom: 30px;
+    }
+
+    .product-details-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    td:first-child,
+    th:first-child {
+      max-width: 50px;
+      width: 50px;
+    }
+
+    th {
+      background: #f0f0f0;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    #loading {
+      padding: 10px;
+      font-style: italic;
+      color: #666;
+    }
+
+    #data-section {
+      padding: 20px;
+      display: none;
     }
 
     .split-container {
@@ -101,298 +171,578 @@
     .split-cell {
       flex: 1;
       padding: 15px;
-      background: white;
       min-height: 350px;
+      background: white;
     }
 
     .split-cell-title {
       text-align: center;
       font-weight: 600;
       font-size: 24px;
+      color: #434343;
       margin-bottom: 20px;
+      margin-top: 10px;
     }
 
-    #loading {
-      padding: 10px;
-      font-style: italic;
-      color: #666;
+    .effects-content,
+    .effectiveness-content {
+      min-height: 300px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 0;
+      margin-top: -10px;
+      height: 300px;
+      width: 100%;
+      position: relative;
+    }
+
+    canvas {
+      max-width: 100% !important;
+      height: 100% !important;
+      width: 100% !important;
+    }
+
+    #product-accordion {
+      display: none;
     }
   </style>
-
 </head>
 
 <body>
   <div id="top-section">
     <h1 class="header-text">
-      Crowd sourcing answers. Which medical cannabis options work best?
-      <span style="font-size: 24px">– Now loading live NZ patient data</span>
+      Crowd sourcing answers. Which of the medical cannabis options available in New Zealand work best for your
+      condition?
+      <span style="font-size: 24px">-   Currently displaying completely random data</span>
     </h1>
-
     <div class="subheader-text">
-      The crowd says this works for our
+      The crowd says this is what works for our
       <select id="condition-select">
         <option value="">Select condition...</option>
       </select>
       <div id="condition-report-count"></div>
     </div>
-
-    <div class="accordion" id="product-accordion"></div>
+    <div class="accordion" id="product-accordion">
+      <!-- Accordion will be populated dynamically -->
+    </div>
   </div>
 
-  <div id="loading">Loading live spreadsheet data…</div>
+  <div id="data-section" style="display:none;">
+    <div id="spreadsheet1" style="display:none;"></div>
+    <div id="spreadsheet2" style="display:none;"></div>
+    <div id="spreadsheet3" style="display:none;"></div>
+  </div>
+
+  <div id="loading">Loading data...</div>
+
+  <!-- PapaParse for CSV parsing (same approach as your terpene page) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
   <script>
-    /* ------------------------------------------------------
-      GOOGLE SHEETS JSON FETCHER (gviz API)
-      Completely replaces your broken HTML scraping.
-    ------------------------------------------------------ */
-    async function fetchSheetJSON(url) {
-      try {
-        const match = url.match(/\/spreadsheets\/d\/e\/([^\/]+)/);
-        if (!match) throw new Error("Invalid URL");
+    /***** CSV URLs (you provided these) *****/
+    const PRODUCTS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTww6fpAXf2v9iAoHDaMmlT44fgIggpFPAKubK9xRsDQfpdnquC3JYt2sL54Mn6Bgl-ld3jjQR7QIXP/pub?gid=0&single=true&output=csv';
+    const CONDITIONS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDPYraFDktD7EtJ7T06_FGu4fszOWQ0cA0Yr0DsP3B6N9WYRofdReaZKurPsWEMW1-kelb9RTGGgps/pub?gid=0&single=true&output=csv';
+    const EFFECTIVENESS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDPYraFDktD7EtJ7T06_FGu4fszOWQ0cA0Yr0DsP3B6N9WYRofdReaZKurPsWEMW1-kelb9RTGGgps/pub?gid=1303283638&single=true&output=csv';
 
-        const sheetId = match[1];
-        const gid = new URL(url).searchParams.get("gid") || "0";
+    let productsTable = [];   // 2D array from Products CSV
+    let conditionsTable = []; // 2D array from Conditions CSV
+    let effectTable = [];     // 2D array from Effectiveness CSV
 
-        const jsonUrl =
-          `https://docs.google.com/spreadsheets/d/e/${sheetId}/gviz/tq?gid=${gid}&tqx=out:json`;
-
-        const response = await fetch(jsonUrl, { cache: 'no-store' });
-        const text = await response.text();
-
-        const json = JSON.parse(
-          text.replace(/.*setResponse\(/, "").replace(/\);\s*$/, "")
-        );
-
-        return json.table;
-
-      } catch (e) {
-        console.error("JSON fetch error:", e);
-        return null;
-      }
+    function parseCSVText(text) {
+      // Use PapaParse to convert to 2D array (no headers)
+      const parsed = Papa.parse(text.trim(), { skipEmptyLines: true, dynamicTyping: false });
+      return parsed.data;
     }
 
-    /* ------------------------------------------------------
-      Convert Google Sheets JSON → 2D array for easy use
-    ------------------------------------------------------ */
-    function sheetToRows(table) {
-      if (!table) return [];
-
-      const cols = table.cols.map(c => c.label || "");
-      const rows = table.rows.map(r => (r.c || []).map(c => (c ? c.v : "")));
-
-      return [cols, ...rows];
+    async function fetchCSV(url) {
+      const cacheBuster = `&_ts=${Date.now()}`;
+      const res = await fetch(url + cacheBuster, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`CSV fetch failed: ${res.status}`);
+      const text = await res.text();
+      return parseCSVText(text);
     }
 
-    /* ------------------------------------------------------
-      DATA FETCH (all 3 spreadsheets)
-    ------------------------------------------------------ */
-    const url1 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTww6fpAXf2v9iAoHDaMmlT44fgIggpFPAKubK9xRsDQfpdnquC3JYt2sL54Mn6Bgl-ld3jjQR7QIXP/pubhtml?gid=0&single=true";
-    const url2 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDPYraFDktD7EtJ7T06_FGu4fszOWQ0cA0Yr0DsP3B6N9WYRofdReaZKurPsWEMW1-kelb9RTGGgps/pubhtml?gid=0&single=true";
-    const url3 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDPYraFDktD7EtJ7T06_FGu4fszOWQ0cA0Yr0DsP3B6N9WYRofdReaZKurPsWEMW1-kelb9RTGGgps/pubhtml?gid=1303283638&single=true";
-
-    let products = [];
-    let conditions = [];
-    let effectiveness = [];
-
-    async function loadAll() {
-      document.getElementById("loading").textContent = "Loading…";
-
-      const t1 = sheetToRows(await fetchSheetJSON(url1));
-      const t2 = sheetToRows(await fetchSheetJSON(url2));
-      const t3 = sheetToRows(await fetchSheetJSON(url3));
-
-      products = t1;
-      conditions = t2;
-      effectiveness = t3;
-
-      document.getElementById("loading").style.display = "none";
-
-      populateConditionSelector();
-      populateProductList();
+    // Helper to choose data start row (many of your sheets have a header row and a product-name row)
+    function dataStartIndex(table) {
+      if (!table || table.length === 0) return 0;
+      // common structure: [0] header labels, [1] product names (for effectiveness sheet), data from [2]
+      if (table.length > 2) return 2;
+      // fallback: start at row 1
+      return 1;
     }
 
-    /* ------------------------------------------------------
-      CONDITIONS DROPDOWN
-    ------------------------------------------------------ */
-    function populateConditionSelector() {
-      const select = document.getElementById("condition-select");
-
-      conditions.slice(2).forEach(r => {
-        if (!r[0]) return;
-        const opt = document.createElement("option");
-        opt.value = r[0];
-        opt.textContent = r[0];
-        select.appendChild(opt);
-      });
-
-      select.addEventListener("change", updateScores);
+    // Normalize string for safe comparison
+    function norm(s) {
+      return ('' + (s || '')).trim().toLowerCase();
     }
 
-    /* ------------------------------------------------------
-      PRODUCT ACCORDION
-    ------------------------------------------------------ */
-    function populateProductList() {
-      const container = document.getElementById("product-accordion");
+    // Build product accordion from productsTable
+    function buildProductAccordion() {
+      const container = document.getElementById('product-accordion');
+      container.innerHTML = '';
+      const start = dataStartIndex(productsTable);
 
-      products.slice(2).forEach(r => {
-        const product = r[0];
-        if (!product) return;
+      for (let i = start; i < productsTable.length; i++) {
+        const row = productsTable[i];
+        if (!row || !row[0] || row[0].trim() === '') continue;
 
-        const item = document.createElement("div");
-        item.className = "accordion-item";
+        const productName = row[0].trim();
+        const strain = row[5] ? row[5].trim() : '';
+        const thcContent = row[6] ? row[6].trim() : '';
+        const cbdContent = row[7] ? row[7].trim() : '';
+        const dominance = row[8] ? row[8].trim() : '';
+        const backgroundColor = getDominanceColor(dominance);
+        const reports = calculateTotalReportsForProduct(productName);
+
+        const item = document.createElement('div');
+        item.className = 'accordion-item';
 
         item.innerHTML = `
-          <div class="accordion-header">
-            <span>${product}</span>
-            <span class="score">0</span>
+          <div class="accordion-header" style="background-color: ${backgroundColor}">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <span style="font-weight:600; font-size:20px">${escapeHtml(productName)}</span>
+              ${strain ? `<span style="font-weight:normal; font-size:14px">[${escapeHtml(strain)}]</span>` : ''}
+              ${dominance ? `<span style="font-weight:normal; font-size:14px">${escapeHtml(dominance)}</span>` : ''}
+              ${thcContent ? `<span style="font-weight:normal; font-size:14px">${escapeHtml(thcContent)}% THC</span>` : ''}
+              ${cbdContent ? `<span style="font-weight:normal; font-size:14px">${escapeHtml(cbdContent)}% CBD</span>` : ''}
+            </div>
+            <span style="font-size:14px">${Math.round(reports)} reports</span>
           </div>
-          <div class="accordion-content">
+          <div class="accordion-content" style="background-color: ${backgroundColor}">
             <div class="split-container">
               <div class="split-cell">
-                <div class="split-cell-title">Effective for <span class="cname"></span></div>
+                <div class="split-cell-title">Effective for <span class="selected-condition"></span></div>
                 <div class="effectiveness-content"></div>
               </div>
               <div class="split-cell">
-                <div class="split-cell-title">Undesired effects</div>
-                <div class="effects-content"></div>
+                <div class="split-cell-title">Commonly reported undesired effects</div>
+                <div class="effects-content" id="effects-${productName.replace(/\s+/g, '-')}"></div>
               </div>
             </div>
           </div>
         `;
 
-        item.querySelector(".accordion-header").addEventListener("click", () => {
-          const c = item.querySelector(".accordion-content");
-          c.classList.toggle("active");
-
-          if (c.classList.contains("active")) loadProductCharts(product, item);
-        });
-
         container.appendChild(item);
+      }
+
+      // Attach click handlers for accordion headers
+      document.querySelectorAll('.accordion-header').forEach(h => {
+        h.addEventListener('click', function () {
+          const content = this.nextElementSibling;
+          const all = document.querySelectorAll('.accordion-content');
+          all.forEach(o => { if (o !== content) o.classList.remove('active'); });
+          content.classList.toggle('active');
+
+          if (content.classList.contains('active')) {
+            const productName = this.querySelector('span:first-child').textContent.trim();
+            const selectedCondition = document.getElementById('condition-select').value;
+            const effectivenessContainer = content.querySelector('.effectiveness-content');
+            const effectsContainer = content.querySelector('.effects-content');
+
+            // populate effectiveness chart/content
+            effectivenessContainer.innerHTML = '';
+            effectsContainer.innerHTML = '';
+
+            const effectivenessData = getEffectivenessData(productName, selectedCondition);
+            if (effectivenessData.effectiveness.length > 0) {
+              const titleDiv = content.querySelector('.split-cell-title');
+              const existingReportsSpan = titleDiv.querySelector('div');
+              if (existingReportsSpan) existingReportsSpan.remove();
+
+              const reportsSpan = document.createElement('div');
+              reportsSpan.style.fontSize = '14px';
+              reportsSpan.style.fontWeight = '300';
+              reportsSpan.style.color = '#666';
+              reportsSpan.style.marginTop = '5px';
+              reportsSpan.textContent = `${Math.round(effectivenessData.totalReports)} Reports`;
+              titleDiv.appendChild(reportsSpan);
+
+              const effectivenessList = createDataList(effectivenessData.effectiveness, null, true);
+              effectivenessContainer.appendChild(effectivenessList);
+            } else {
+              effectivenessContainer.innerHTML = 'No effectiveness data available';
+            }
+
+            const effects = getUndesiredEffects(productName);
+            if (effects.length > 0) {
+              const effectsList = createDataList(effects, 8);
+              effectsContainer.appendChild(effectsList);
+            } else {
+              effectsContainer.innerHTML = 'No undesired effects data available';
+            }
+          }
+        });
       });
     }
 
-    /* ------------------------------------------------------
-      SCORE CALCULATION + REORDER
-    ------------------------------------------------------ */
-    function updateScores() {
-      const condition = document.getElementById("condition-select").value;
-      const acc = document.getElementById("product-accordion");
+    // Populate condition dropdown from conditionsTable
+    function populateConditionsDropdown() {
+      const select = document.getElementById('condition-select');
+      // clear existing except first option
+      while (select.options.length > 1) select.remove(1);
 
-      [...acc.children].forEach(item => {
-        const product = item.querySelector(".accordion-header span").textContent;
+      const start = dataStartIndex(conditionsTable);
+      for (let i = start; i < conditionsTable.length; i++) {
+        const row = conditionsTable[i];
+        if (!row || !row[0]) continue;
+        const condition = row[0].trim();
+        if (!condition) continue;
+        if (condition.toLowerCase() === 'conditions') continue;
+        const opt = document.createElement('option');
+        opt.value = condition;
+        opt.textContent = condition;
+        select.appendChild(opt);
+      }
 
-        const score = getScore(product, condition);
-        item.querySelector(".score").textContent = score;
-
-        item.dataset.score = score;
-      });
-
-      [...acc.children]
-        .sort((a, b) => b.dataset.score - a.dataset.score)
-        .forEach(el => acc.appendChild(el));
+      select.addEventListener('change', onConditionChange);
     }
 
-    function getScore(product, condition) {
-      if (!condition) return 0;
-      const header = effectiveness[1];
+    function onConditionChange() {
+      const selectedCondition = this.value;
+      const accordion = document.getElementById('product-accordion');
+      accordion.style.display = selectedCondition ? 'block' : 'none';
 
-      const col = header.indexOf(product);
-      if (col === -1) return 0;
+      // Update report count
+      const countElId = 'condition-report-count';
+      let reportCountSpan = document.getElementById(countElId);
+      if (!reportCountSpan) {
+        reportCountSpan = document.createElement('div');
+        reportCountSpan.id = countElId;
+        reportCountSpan.style.marginLeft = '50px';
+        reportCountSpan.style.fontSize = '14px';
+        reportCountSpan.style.color = '#666';
+        reportCountSpan.style.fontWeight = '300';
+        document.querySelector('.subheader-text').appendChild(reportCountSpan);
+      }
 
-      let score = 0;
-
-      effectiveness.slice(2).forEach(r => {
-        if (r[0] === condition && r[1] === "Score")
-          score = r[col] || 0;
-      });
-
-      return score;
-    }
-
-    /* ------------------------------------------------------
-      CHART LOADING (Effectiveness + Side Effects)
-    ------------------------------------------------------ */
-    function loadProductCharts(product, item) {
-      const condition = document.getElementById("condition-select").value;
-      item.querySelector(".cname").textContent = condition;
-
-      const eff = item.querySelector(".effectiveness-content");
-      eff.innerHTML = "";
-      eff.appendChild(makeEffectivenessChart(product, condition));
-
-      const side = item.querySelector(".effects-content");
-      side.innerHTML = "";
-      side.appendChild(makeSideEffectsChart(product));
-    }
-
-    /* ------------------------------------------------------
-      EFFECTIVENESS CHART (Bar)
-    ------------------------------------------------------ */
-    function makeEffectivenessChart(product, condition) {
-      const canvas = document.createElement("canvas");
-
-      const header = effectiveness[1];
-      const col = header.indexOf(product);
-
-      const effects = ["Not effective", "Mild benefit", "Good benefit", "This is exactly what I need"];
-      let data = [0, 0, 0, 0];
-
-      effectiveness.slice(2).forEach(r => {
-        if (r[0] === condition) {
-          const idx = effects.indexOf(r[1]);
-          if (idx >= 0) data[idx] = r[col] || 0;
-        }
-      });
-
-      new Chart(canvas, {
-        type: "bar",
-        data: {
-          labels: effects,
-          datasets: [{
-            data,
-            backgroundColor: ["#bbb", "#e4f4c7", "#c1e99a", "#92d737"]
-          }]
-        },
-        options: { plugins: { legend: { display: false } } }
-      });
-
-      return canvas;
-    }
-
-    /* ------------------------------------------------------
-      SIDE EFFECTS CHART (Pie)
-    ------------------------------------------------------ */
-    function makeSideEffectsChart(product) {
-      const canvas = document.createElement("canvas");
-
-      const header = effectiveness[1];
-      const col = header.indexOf(product);
-
-      let labels = [];
-      let data = [];
-
-      effectiveness.slice(2).forEach(r => {
-        if (r[0] === "Undesired effects" && r[1] !== "Only acceptable side effects") {
-          if (r[col] > 0) {
-            labels.push(r[1]);
-            data.push(r[col]);
+      if (selectedCondition) {
+        // Count total reports for this condition across effectiveness sheet (effect types rows)
+        let totalReports = 0;
+        const start = dataStartIndex(effectTable);
+        for (let i = start; i < effectTable.length; i++) {
+          const row = effectTable[i];
+          if (!row || row.length < 2) continue;
+          const rowCondition = (row[0] || '').trim().toLowerCase();
+          const effectType = (row[1] || '').trim();
+          if (rowCondition === selectedCondition.toLowerCase() &&
+            ["Not effective", "Mild benefit", "Good benefit", "This is exactly what I need"].includes(effectType)) {
+            for (let j = 2; j < row.length; j++) {
+              totalReports += parseFloat(row[j]) || 0;
+            }
           }
         }
+        reportCountSpan.textContent = `${Math.round(totalReports)} Reports`;
+      } else {
+        reportCountSpan.textContent = '';
+      }
+
+      // Update product score displays and reorder accordion
+      const items = Array.from(document.querySelectorAll('.accordion-item'));
+      items.forEach(item => {
+        const productName = item.querySelector('.accordion-header span:first-child').textContent.trim();
+        const sc = getProductScore(productName, selectedCondition);
+        const scoreSpan = item.querySelector('.accordion-header > span:last-child');
+        if (scoreSpan) scoreSpan.textContent = `${sc.score}/500`;
+        // store as data for sorting
+        item.dataset.score = sc.score;
       });
 
-      new Chart(canvas, {
-        type: "pie",
-        data: { labels, datasets: [{ data }] },
-        options: { plugins: { legend: { position: "right" } } }
-      });
-
-      return canvas;
+      // sort items by score desc
+      items.sort((a, b) => (parseFloat(b.dataset.score) || 0) - (parseFloat(a.dataset.score) || 0));
+      const container = document.getElementById('product-accordion');
+      container.innerHTML = '';
+      items.forEach(it => container.appendChild(it));
     }
 
-    window.addEventListener("load", loadAll);
-  </script>
+    // Calculate total reports for a product (sum of numeric values in its column across rows that look like effect rows)
+    function calculateTotalReportsForProduct(productName) {
+      const productCol = findProductColumnInEffectTable(productName);
+      if (productCol === -1) return 0;
+      let sum = 0;
+      const start = dataStartIndex(effectTable);
+      for (let i = start; i < effectTable.length; i++) {
+        const row = effectTable[i];
+        if (!row || row.length <= productCol) continue;
+        const val = parseFloat(row[productCol]);
+        if (!isNaN(val)) sum += val;
+      }
+      return sum;
+    }
 
+    // Find product column index in the effectiveness table. The product names are often in row 1 (index 1).
+    function findProductColumnInEffectTable(productName) {
+      if (!effectTable || effectTable.length === 0) return -1;
+      const candidateRowIndex = effectTable.length > 1 ? 1 : 0;
+      const row = effectTable[candidateRowIndex] || [];
+      for (let i = 0; i < row.length; i++) {
+        if (norm(row[i]) === norm(productName)) return i;
+      }
+      // fallback: search first 3 rows
+      for (let r = 0; r < Math.min(effectTable.length, 4); r++) {
+        const prow = effectTable[r] || [];
+        for (let i = 0; i < prow.length; i++) {
+          if (norm(prow[i]) === norm(productName)) return i;
+        }
+      }
+      return -1;
+    }
+
+    // Return object {score, reports} for a product+condition
+    function getProductScore(productName, condition) {
+      const productCol = findProductColumnInEffectTable(productName);
+      if (productCol === -1) return { score: 0, reports: 0 };
+
+      const start = dataStartIndex(effectTable);
+      let score = 0;
+      let reports = 0;
+
+      for (let i = start; i < effectTable.length; i++) {
+        const row = effectTable[i];
+        if (!row || row.length < 2) continue;
+        const rowCondition = (row[0] || '').trim().toLowerCase();
+        const rowType = (row[1] || '').trim().toLowerCase();
+
+        // reports: accumulate any numeric values in product column across all rows
+        const v = parseFloat(row[productCol]);
+        if (!isNaN(v)) reports += v;
+
+        if (condition && rowCondition === condition.trim().toLowerCase() && rowType === 'score') {
+          score = parseFloat(row[productCol]) || 0;
+        }
+      }
+
+      return { score, reports };
+    }
+
+    // Get undesired effects for a product from the effectTable
+    function getUndesiredEffects(productName) {
+      const productCol = findProductColumnInEffectTable(productName);
+      if (productCol === -1) return [];
+
+      const start = dataStartIndex(effectTable);
+      const effects = [];
+      let hasAcceptable = false;
+
+      for (let i = start; i < effectTable.length; i++) {
+        const row = effectTable[i];
+        if (!row || row.length < 2) continue;
+        const rowType = (row[0] || '').trim().toLowerCase();
+        if (rowType === 'undesired effects') {
+          const effectName = row[1] ? row[1].trim() : '';
+          const val = parseFloat(row[productCol]) || 0;
+          if (effectName.toLowerCase() === 'only acceptable side effects') hasAcceptable = true;
+          if (val > 0) effects.push({ name: effectName || 'Unnamed', value: val });
+        }
+      }
+
+      if (!hasAcceptable) effects.unshift({ name: 'Only acceptable side effects', value: 0 });
+
+      return effects;
+    }
+
+    // Get effectiveness breakdown for a product under a condition
+    function getEffectivenessData(productName, condition) {
+      if (!condition) return { effectiveness: [], totalReports: 0 };
+      const productCol = findProductColumnInEffectTable(productName);
+      if (productCol === -1) return { effectiveness: [], totalReports: 0 };
+
+      const effectTypes = [
+        'Not effective',
+        'Mild benefit',
+        'Good benefit',
+        'This is exactly what I need'
+      ];
+
+      const start = dataStartIndex(effectTable);
+      const effectiveness = [];
+
+      for (let i = start; i < effectTable.length; i++) {
+        const row = effectTable[i];
+        if (!row || row.length < 2) continue;
+        const rowCondition = (row[0] || '').trim();
+        const effectType = (row[1] || '').trim();
+        if (rowCondition.toLowerCase() === condition.trim().toLowerCase() && effectTypes.includes(effectType)) {
+          const v = parseFloat(row[productCol]) || 0;
+          if (v > 0) effectiveness.push({ name: effectType, value: v });
+        }
+      }
+
+      const totalReports = effectiveness.reduce((s, it) => s + it.value, 0);
+      return { effectiveness, totalReports };
+    }
+
+    // Create charts (effectiveness = bar, undesired = pie). Reuses your existing visuals.
+    function createDataList(data, limit = null, isEffectiveness = false) {
+      if (isEffectiveness) {
+        // Bar chart with percentages
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%';
+        canvas.style.height = '300px';
+
+        const effectTypes = [
+          'Exactly what I need',
+          'Good benefit',
+          'Mild benefit',
+          'Not effective'
+        ];
+
+        const chartData = effectTypes.map(type => {
+          const found = data.find(item =>
+            (type === 'Exactly what I need' && item.name === 'This is exactly what I need') ||
+            item.name === type
+          );
+          return found ? found.value : 0;
+        });
+
+        const total = chartData.reduce((a, b) => a + b, 0);
+        const percentages = chartData.map(v => total > 0 ? (v / total) * 100 : 0);
+
+        new Chart(canvas, {
+          type: 'bar',
+          data: {
+            labels: effectTypes.map(l => l.split(' ').join('\n')),
+            datasets: [{
+              data: percentages,
+              backgroundColor: [
+                '#8cd82d',
+                '#c6eb96',
+                '#e3f5cc',
+                '#b8b8b8'
+              ],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: false }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { autoSkip: false } },
+              y: { display: false, max: 100 }
+            },
+            layout: { padding: { left: 10, right: 10, top: 10, bottom: 10 } }
+          }
+        });
+
+        return canvas;
+      } else {
+        // Pie chart for side-effects
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%';
+        canvas.style.height = '300px';
+
+        let sorted = data.map(d => ({ name: d.name, value: d.value }));
+        const acceptableIndex = sorted.findIndex(i => i.name === 'Only acceptable side effects');
+        const acceptableItem = acceptableIndex !== -1 ? sorted.splice(acceptableIndex, 1)[0] : null;
+
+        sorted = sorted.sort((a, b) => b.value - a.value).slice(0, 9);
+        if (acceptableItem) sorted.unshift(acceptableItem);
+
+        const total = sorted.reduce((s, it) => s + it.value, 0);
+        const percentages = sorted.map(it => total > 0 ? (it.value / total) * 100 : 0);
+
+        new Chart(canvas, {
+          type: 'pie',
+          data: {
+            labels: sorted.map(it => it.name),
+            datasets: [{
+              data: percentages,
+              backgroundColor: [
+                '#8cd82d',
+                '#d8d8d8',
+                '#b8b8b8',
+                '#989898',
+                '#787878',
+                '#686868',
+                '#585858',
+                '#484848',
+                '#383838',
+                '#282828'
+              ],
+              borderWidth: 1,
+              borderColor: 'white'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'right', onClick: null }
+            },
+            layout: { padding: { left: 10, right: 10, top: 10, bottom: 10 } }
+          }
+        });
+
+        return canvas;
+      }
+    }
+
+    // Utility: escape HTML to avoid accidental injection in product names
+    function escapeHtml(s) {
+      return (s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Dominance color mapping (kept from your file)
+    function getDominanceColor(dominance) {
+      const normalizedDominance = (dominance || '').toLowerCase().trim();
+      switch (normalizedDominance) {
+        case 'sativa dominant': return '#ffea8a';
+        case 'indica dominant': return '#9be7f5';
+        case 'balanced hybrid': return '#bee8a6';
+        case 'unknown': return '#d1e6cb';
+        default: return '#EAEAEA';
+      }
+    }
+
+    // On window resize keep table widths flexible (preserve original behavior)
+    window.addEventListener('resize', function () {
+      const tables = document.querySelectorAll('table');
+      tables.forEach(t => t.style.width = '100%');
+    });
+
+    // Main loader (gets three CSVs, builds UI)
+    async function loadSpreadsheetsCSV() {
+      const loading = document.getElementById('loading');
+      try {
+        loading.textContent = 'Loading CSVs…';
+
+        const [p, c, e] = await Promise.all([
+          fetchCSV(PRODUCTS_CSV),
+          fetchCSV(CONDITIONS_CSV),
+          fetchCSV(EFFECTIVENESS_CSV)
+        ]);
+
+        productsTable = p || [];
+        conditionsTable = c || [];
+        effectTable = e || [];
+
+        // Hiding the old debug areas (kept for parity)
+        document.getElementById('data-section').style.display = 'none';
+        loading.style.display = 'none';
+
+        // Build UI components
+        populateConditionsDropdown();
+        buildProductAccordion();
+
+        // Initially hide accordion until a condition is selected (same behavior)
+        document.getElementById('product-accordion').style.display = 'none';
+      } catch (err) {
+        console.error('Error loading CSVs', err);
+        if (loading) loading.textContent = 'Error loading CSVs. Check console.';
+      }
+    }
+
+    window.addEventListener('load', loadSpreadsheetsCSV);
+  </script>
 </body>
 
 </html>
