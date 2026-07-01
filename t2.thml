@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NZ Medical Cannabis Terpene Comparison — Similarity Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --header-height: 40px;
+    --border: #c9c9c9;
+    --header-bg: #f4f4f4;
+    --reference: #d3a100;
+    --reference-light: #fff0a8;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Poppins', Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: #171717;
+    background: #fff;
+  }
+
+  h1 {
+    font-size: 16px;
+    margin: 0 0 4px;
+  }
+
+  h2 {
+    font-size: 10px;
+    line-height: 1.55;
+    margin: 0 0 12px;
+    font-weight: 400;
+  }
+
+  a { color: inherit; }
+
+  .comparison-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 0 0 10px;
+    padding: 9px 11px;
+    border: 1px solid #cfd5da;
+    background: #f7f9fa;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .comparison-bar.active {
+    border-color: #d4ad22;
+    background: #fffbee;
+  }
+
+  .comparison-copy { max-width: 1050px; }
+
+  .comparison-copy strong { font-weight: 600; }
+
+  .clear-button {
+    flex: 0 0 auto;
+    border: 1px solid #777;
+    border-radius: 3px;
+    background: #fff;
+    color: #111;
+    font: inherit;
+    font-weight: 500;
+    padding: 5px 9px;
+    cursor: pointer;
+  }
+
+  .clear-button:hover { background: #f0f0f0; }
+  .clear-button[hidden] { display: none; }
+
+  .table-shell {
+    width: 100%;
+    max-height: calc(100vh - 165px);
+    min-height: 280px;
+    overflow: auto;
+    border: 1px solid var(--border);
+    background: #fff;
+    overscroll-behavior: contain;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: max-content;
+    min-width: 100%;
+    font-size: 0.8rem;
+  }
+
+  th, td {
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 4px;
+    text-align: center;
+    white-space: nowrap;
+    background-clip: padding-box;
+    height: 29px;
+    line-height: 1.2;
+  }
+
+  th:last-child, td:last-child { border-right: 0; }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    max-width: 80px;
+    background: var(--header-bg);
+    border-bottom: 2px solid #8f8f8f;
+    font-weight: 600;
+    vertical-align: middle;
+  }
+
+  th.sortable { cursor: pointer; }
+  th.sortable:hover { background: #e9e9e9; }
+  th.locked { cursor: default; }
+
+  th:first-child,
+  td:first-child {
+    position: sticky;
+    left: 0;
+    min-width: 250px;
+    max-width: 250px;
+    text-align: left;
+  }
+
+  th:first-child { z-index: 30; }
+
+  td:first-child {
+    z-index: 10;
+    background: var(--header-bg);
+    box-shadow: 2px 0 4px rgba(0,0,0,0.06);
+  }
+
+  td:last-child, th:last-child {
+    text-align: left;
+  }
+
+  .product-button {
+    width: 100%;
+    border: 0;
+    padding: 1px 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .product-button:hover,
+  .product-button:focus-visible {
+    text-decoration: underline;
+    outline: none;
+  }
+
+  tr.reference-row td {
+    position: sticky;
+    top: var(--header-height);
+    z-index: 16;
+    border-top: 3px solid var(--reference);
+    border-bottom: 3px solid var(--reference);
+    background-color: #fff;
+    font-weight: 600;
+  }
+
+  tr.reference-row td:first-child {
+    z-index: 26;
+    background: var(--reference-light) !important;
+  }
+
+  tr.reference-row td:last-child { z-index: 16; }
+
+  tr.italic-row td:not(:first-child) { font-style: italic; }
+
+  .sort-arrow {
+    display: inline-block;
+    min-width: 10px;
+    margin-left: 3px;
+    font-size: 9px;
+  }
+
+  .no-profile {
+    color: #7b2222;
+    font-weight: 500;
+  }
+
+  @media (max-width: 700px) {
+    body { padding: 10px; }
+    .comparison-bar { display: block; }
+    .clear-button { margin-top: 8px; }
+    .table-shell { max-height: calc(100vh - 220px); }
+    th:first-child, td:first-child { min-width: 235px; max-width: 235px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>NZ Medical Cannabis Terpene Comparison — approx % w/w</h1>
+<h2>
+  Product data compiled from publicly available supplier product information sheets.<br>
+  Click column headers to sort the standard table. Click a product name to reorganise the table around its reported terpene profile.<br>
+  Where total-terpenes data was unavailable, values normalised to 1% w/w remain italicised. <strong>Total terpenes may represent more terpenes tested for rather than more terpenes present.</strong>
+</h2>
+
+<div id="comparisonBar" class="comparison-bar">
+  <div id="comparisonCopy" class="comparison-copy">
+    <strong>Standard table.</strong> Click any product name to pin it as the reference product and arrange the other rows beneath it by profile shape.
+  </div>
+  <button id="clearComparison" class="clear-button" type="button" hidden>Clear comparison</button>
+</div>
+
+<div id="tableShell" class="table-shell" tabindex="0" aria-label="Scrollable terpene comparison table">
+  <table id="spreadsheet">
+    <thead><tr id="headerRow"></tr></thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<script>
+const tableData = [["Product", "Total % w/w", "β-Caryophyllene", "Limonene", "d-Limonene", "Myrcene", "β-Myrcene", "α-Pinene", "β-Pinene", "Terpinolene", "α-Humulene", "Franesene", "Linalool", "Selina3,7(11)-diene", "trans-Caryophyllene", "Selina-4(15),7(11)-diene", "Ocimene", "α-Bisabolol", "Guaiol", "Germacrene", "β-Ocimene", "Terpineol", "α-Bulnesene", "Guaia-6,9-diene", "Caryophyllene Oxide", "Nerolidol", "trans-nerolidol", "Camphene", "α-Terpinene", "3-Carene", "β-Selinene", "gamma-Terpinene", "Camphor", "Notes"], ["ANTG Duke", "1.340", "0.390", "0.251", "", "0.090", "", "", "0.080", "", "0.170", "", "0.170", "", "", "", "", "", "", "", "", "0.070", "", "", "", "", "", "", "", "", "", "", "", ""], ["ANTG Eve", "0.980", "0.170", "0.090", "", "0.330", "", "0.050", "0.090", "0.140", "", "", "0.040", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "0.020", "", ""], ["ANTG Juno", "1.270", "0.353", "", "0.119", "0.460", "", "0.020", "0.017", "", "0.126", "", "0.056", "", "", "", "", "0.047", "", "", "", "0.020", "", "", "", "", "", "", "", "", "", "", "", ""], ["ANTG Mariposa", "0.960", "0.170", "0.170", "", "0.070", "", "0.040", "0.070", "", "0.080", "", "", "0.150", "", "0.110", "", "", "", "0.030", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["ANTG Rocky", "1.360", "0.125", "", "0.235", "0.027", "", "", "0.069", "", "0.056", "", "0.069", "0.458", "", "0.194", "", "", "", "0.125", "", "", "", "", "", "", "", "", "", "", "0.027", "", "", ""], ["ANTG Solace", "2.420", "0.290", "0.431", "", "0.409", "", "", "0.109", "", "0.169", "", "0.140", "0.300", "", "0.220", "", "", "", "0.131", "", "", "0.109", "0.109", "", "", "", "", "", "", "", "", "", ""], ["Aurora Big Wave", "2.800", "% ?", "% ?", "", "% ?", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Aurora Equiposa {discontinued}", "1.800", "", "", "", "", "0.936", "0.612", "0.126", "", "", "", "0.090", "", "", "", "", "", "", "", "", "0.036", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel."], ["Aurora Half Moon", "No Data", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Aurora Luminarium {discontinued}", "1.500", "", "", "", "", "0.405", "0.240", "0.135", "0.525", "", "", "", "", "", "", "", "", "", "", "0.165", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel."], ["Aurora Night Ride", "2.800", "% ?", "% ?", "", "% ?", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Aurora Sedaprem {discontinued}", "1.800", "", "0.432", "", "", "0.792", "", "", "", "0.126", "", "0.198", "", "0.234", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel."], ["Beacon Medical GSC", "No Data", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Beacon Medical Pink Kush", "No Data", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Bloom Blue Dream {discontinued}", "1.000", "0.110", "", "", "0.430", "", "", "0.200", "", "0.030", "0.070", "0.030", "", "", "", "0.030", "0.030", "0.030", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Bloom JFG", "1.000", "0.320", "0.130", "", "0.210", "", "0.040", "", "", "0.080", "0.130", "0.050", "", "", "", "", "", "", "", "", "0.010", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Bloom Pink Kush ", "1.000", "0.280", "0.100", "", "0.130", "", "0.020", "", "", "0.070", "0.220", "0.070", "", "", "", "", "0.050", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Cannasouth Calmana / Cumulus", "1.000", "0.266", "0.342", "", "0.114", "", "0.057", "0.057", "", "0.076", "", "0.095", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Cannasouth Serion / Symetis B52", "1.000", "0.165", "0.116", "", "0.550", "", "0.025", "0.025", "", "0.066", "", "0.050", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Cannasouth Sunrise", "1.000", "0.140", "0.340", "", "0.180", "", "0.320", "", "", "", "", "0.080", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Cannasouth Twilight", "1.000", "0.297", "0.231", "", "0.165", "", "0.038", "0.038", "", "0.132", "", "0.165", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Chill Division White Sherb", "No Data", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Flowerman Wappa", "2.220", "0.446", "", "0.351", "0.611", "", "0.044", "0.067", "", "0.282", "", "0.102", "", "", "", "", "0.149", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["HealthHouse Cannabis Tea", "No Data", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Helius DK Dawn {discontinued}", "2.162", "0.735", "0.541", "", "", "0.216", "", "0.108", "", "0.195", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Helius DK Dusk {discontinued}", "1.949", "0.799", "0.253", "", "", "0.312", "", "", "0.195", "0.234", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Helius NZ Amelia {discontinued}", "1.500", "0.090", "", "0.105", "", "0.225", "0.060", "0.105", "0.450", "", "", "", "", "", "", "0.300", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Helius NZ Maya {discontinued}", "3.300", "0.660", "", "1.023", "", "1.023", "0.066", "0.165", "", "0.264", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "0.066", "", "", "", "", "", "", "", ""], ["Kikuya Arroyo", "2.170", "0.269", "", "0.111", "", "0.269", "0.061", "0.061", "0.760", "0.100", "", "", "", "", "", "", "0.069", "0.089", "", "0.119", "0.039", "", "", "", "", "0.020", "0.011", "0.030", "0.030", "", "", "", ""], ["KIKUYA Caldera", "2.100", "0.265", "0.578", "", "0.632", "", "0.067", "0.101", "0.004", "0.078", "", "0.271", "", "", "", "", "", "", "", "0.008", "0.076", "", "", "", "", "", "0.023", "", "", "", "", "", ""], ["Kikuya Cove", "No Data", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Kikuya Dune", "1.170", "0.123", "", "0.098", "", "0.257", "0.362", "0.125", "", "", "", "0.033", "", "", "", "", "0.035", "0.012", "", "", "0.027", "", "", "0.023", "", "", "0.009", "", "", "", "", "", ""], ["KIKUYA Fuma", "3.610", "0.646", "", "1.159", "0.141", "", "0.188", "0.177", "", "0.206", "", "0.393", "", "", "", "0.054", "0.043", "", "", "", "0.116", "", "", "", "0.043", "", "", "", "", "", "", "", ""], ["Kikuya Peak", "1.450", "0.322", "0.204", "", "", "0.345", "0.048", "0.058", "", "0.120", "", "0.090", "", "", "", "", "0.077", "0.074", "", "", "0.036", "", "", "0.019", "", "0.016", "0.012", "", "", "", "", "", ""], ["Medleaf GG4", "1.000", "0.160", "0.080", "", "", "0.340", "", "", "", "0.050", "0.240", "", "", "", "", "", "0.040", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Medleaf GSCx", "1.000", "0.240", "0.240", "", "0.160", "", "0.060", "", "", "0.080", "0.120", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Medleaf LL Kush", "1.000", "0.340", "0.130", "", "", "0.170", "0.050", "", "", "", "0.160", "0.050", "", "", "", "", "", "", "", "", "0.030", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Medleaf MAC-1", "1.000", "0.150", "0.210", "", "0.040", "", "0.160", "", "", "0.040", "0.180", "0.070", "", "", "", "", "0.050", "", "", "", "0.040", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Medleaf Orange Kush C {discontinued}", "No Data", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Medleaf Runtz M", "1.000", "0.140", "0.320", "", "0.060", "", "0.130", "", "", "", "0.100", "0.070", "", "", "", "0.040", "", "", "", "", "0.040", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Medleaf Shishkaberry {discontinued}", "1.000", "0.140", "0.090", "", "", "0.310", "0.120", "", "", "0.050", "0.090", "", "", "", "", "0.160", "", "", "", "", "0.020", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Medleaf Tropicana", "1.000", "", "0.070", "", "0.060", "", "", "", "", "0.110", "0.130", "0.060", "", "0.470", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Medleaf Zour Apple", "1.000", "0.170", "0.040", "", "0.110", "", "0.050", "", "0.330", "0.040", "0.140", "", "", "", "", "", "0.040", "0.040", "", "", "0.040", "", "", "", "", "", "", "", "", "", "", "", "Estimated from terpene wheel. Normalised to 1% w/w total terpenes. "], ["Rua Puāwai THC 18 White Widow", "1.000", "% ?", "% ?", "", "", "% ?", "% ?", "", "", "% ?", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Total %w/w only, terpenes listed without %."], ["Rua Puāwai THC 24", "1.700", "% ?", "% ?", "", "", "% ?", "% ?", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "% ?", "Total %w/w only, terpenes listed without %."], ["Rua Puāwai THC 26", "1.200", "% ?", "% ?", "", "", "% ?", "% ?", "", "", "", "", "% ?", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Total %w/w only, terpenes listed without %."], ["Smith Indica", "1.640", "0.413", "", "0.336", "0.051", "", "0.075", "0.089", "", "0.177", "", "0.189", "", "", "", "", "", "", "", "", "0.131", "", "", "", "", "", "", "", "", "", "", "", ""], ["Smith Sativa", "1.607", "0.264", "", "0.223", "0.256", "", "0.477", "0.140", "", "0.084", "", "", "", "", "", "", "", "0.116", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], ["Tilray THC 22 (Powdered Donuts) ", "1.000", "0.310", "0.100", "", "0.240", "", "0.082", "", "", "0.069", "", "0.122", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "0.056", "", "0.016", "", "", "", "Estimated from terpene graph. Normalised to 1% w/w total terpenes. "], ["Tilray THC 25 (Triangle Mints)", "1.000", "0.410", "0.086", "", "0.110", "", "0.028", "", "0.004", "0.103", "0.123", "0.090", "", "", "", "", "0.020", "", "", "", "0.012", "", "", "", "", "", "0.008", "", "", "", "", "", "Estimated from terpene graph. Normalised to 1% w/w total terpenes. "]];
+const headers = tableData[0];
+const sourceRows = tableData.slice(1).filter(row => row[0] && row[0].trim() !== '');
+const PRODUCT_COL = 0;
+const TOTAL_COL = 1;
+const NOTES_COL = headers.length - 1;
+const TERPENE_COLS = Array.from({length: NOTES_COL - 2}, (_, i) => i + 2);
+const originalColumnOrder = Array.from({length: headers.length}, (_, i) => i);
+
+let currentRows = [...sourceRows];
+let currentColumnOrder = [...originalColumnOrder];
+let referenceProduct = null;
+let sortState = {column: null, direction: null};
+
+const headerRow = document.getElementById('headerRow');
+const tableBody = document.getElementById('tableBody');
+const tableShell = document.getElementById('tableShell');
+const comparisonBar = document.getElementById('comparisonBar');
+const comparisonCopy = document.getElementById('comparisonCopy');
+const clearComparison = document.getElementById('clearComparison');
+
+function numericValue(value) {
+  if (value === null || value === undefined || String(value).trim() === '') return null;
+  const n = Number.parseFloat(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function inferredQuestionValue(row, col) {
+  if (!TERPENE_COLS.includes(col) || String(row[col] || '').trim() !== '% ?') return null;
+  const total = numericValue(row[TOTAL_COL]);
+  if (total === null) return null;
+
+  const questionCount = TERPENE_COLS.reduce(
+    (count, terpeneCol) => count + (String(row[terpeneCol] || '').trim() === '% ?' ? 1 : 0),
+    0
+  );
+
+  return questionCount > 0 ? total / questionCount : null;
+}
+
+function sortingValue(row, col) {
+  const reported = numericValue(row[col]);
+  return reported !== null ? reported : inferredQuestionValue(row, col);
+}
+
+function reportedTerpeneCount(row) {
+  return TERPENE_COLS.reduce((count, col) => count + (sortingValue(row, col) !== null ? 1 : 0), 0);
+}
+
+function similarityDetails(reference, candidate) {
+  const shared = TERPENE_COLS.filter(col =>
+    sortingValue(reference, col) !== null && sortingValue(candidate, col) !== null
+  );
+
+  if (shared.length === 0) {
+    return {tier: 3, distance: Infinity, shared: 0};
+  }
+
+  const refValues = shared.map(col => sortingValue(reference, col));
+  const candidateValues = shared.map(col => sortingValue(candidate, col));
+  const refSum = refValues.reduce((sum, value) => sum + value, 0);
+  const candidateSum = candidateValues.reduce((sum, value) => sum + value, 0);
+
+  if (refSum <= 0 || candidateSum <= 0) {
+    return {tier: 3, distance: Infinity, shared: shared.length};
+  }
+
+  // Total-variation distance between the two proportional profiles,
+  // using only terpene values reported for both products.
+  const distance = 0.5 * shared.reduce((sum, col) => {
+    const refShare = sortingValue(reference, col) / refSum;
+    const candidateShare = sortingValue(candidate, col) / candidateSum;
+    return sum + Math.abs(refShare - candidateShare);
+  }, 0);
+
+  const tier = shared.length >= 3 ? 0 : shared.length === 2 ? 1 : 2;
+  return {tier, distance, shared: shared.length};
+}
+
+function comparisonColumnOrder(reference) {
+  const reported = [];
+  const unreported = [];
+
+  TERPENE_COLS.forEach(col => {
+    const value = sortingValue(reference, col);
+    if (value === null) unreported.push(col);
+    else reported.push({col, value});
+  });
+
+  reported.sort((a, b) => b.value - a.value || a.col - b.col);
+  return [PRODUCT_COL, TOTAL_COL, ...reported.map(item => item.col), ...unreported, NOTES_COL];
+}
+
+function colourScales(rows) {
+  const scales = {};
+  for (let col = TOTAL_COL; col < NOTES_COL; col++) {
+    const values = rows.map(row => numericValue(row[col])).filter(value => value !== null);
+    scales[col] = values.length
+      ? {min: Math.min(...values), max: Math.max(...values)}
+      : {min: null, max: null};
+  }
+  return scales;
+}
+
+const scales = colourScales(sourceRows);
+
+function cellBackground(col, rawValue, opaque = false) {
+  const value = numericValue(rawValue);
+  if (value === null) {
+    if (String(rawValue || '').trim() === '') return null;
+    return opaque ? 'rgb(245, 230, 245)' : 'rgba(150, 0, 150, 0.1)';
+  }
+  const scale = scales[col];
+  if (!scale || scale.min === null) return null;
+  const proportion = scale.max === scale.min ? 1 : (value - scale.min) / (scale.max - scale.min);
+  const alpha = proportion * 0.5 + 0.1;
+  const base = col === TOTAL_COL ? [0, 150, 0] : [0, 150, 255];
+
+  if (opaque) {
+    const mixed = base.map(channel => Math.round(channel * alpha + 255 * (1 - alpha)));
+    return `rgb(${mixed[0]}, ${mixed[1]}, ${mixed[2]})`;
+  }
+
+  return `rgba(${base[0]}, ${base[1]}, ${base[2]}, ${alpha})`;
+}
+
+function buildHeader() {
+  headerRow.innerHTML = '';
+  currentColumnOrder.forEach(col => {
+    const th = document.createElement('th');
+    const label = document.createElement('span');
+    label.textContent = headers[col];
+    th.appendChild(label);
+
+    const arrow = document.createElement('span');
+    arrow.className = 'sort-arrow';
+    arrow.textContent = sortState.column === col ? (sortState.direction === 'asc' ? '▲' : '▼') : '';
+    th.appendChild(arrow);
+
+    if (referenceProduct) {
+      th.classList.add('locked');
+      th.title = 'Clear comparison to use normal column sorting.';
+      th.setAttribute('aria-disabled', 'true');
+    } else {
+      th.classList.add('sortable');
+      th.tabIndex = 0;
+      th.title = `Sort by ${headers[col]}`;
+      th.addEventListener('click', () => sortColumn(col));
+      th.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          sortColumn(col);
+        }
+      });
+    }
+
+    headerRow.appendChild(th);
+  });
+
+  requestAnimationFrame(updateStickyHeaderHeight);
+}
+
+function createProductCell(row, isReference) {
+  const td = document.createElement('td');
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'product-button';
+  button.textContent = row[PRODUCT_COL];
+  button.title = isReference
+    ? 'Clear this reference product'
+    : `Compare other products with ${row[PRODUCT_COL]}`;
+
+  button.addEventListener('click', () => {
+    if (isReference) clearReference();
+    else selectReference(row[PRODUCT_COL]);
+  });
+  td.appendChild(button);
+  return td;
+}
+
+function renderBody() {
+  tableBody.innerHTML = '';
+
+  currentRows.forEach(row => {
+    const tr = document.createElement('tr');
+    const isReference = referenceProduct === row[PRODUCT_COL];
+    if (isReference) tr.classList.add('reference-row');
+    if ((row[NOTES_COL] || '').toLowerCase().includes('normalised')) tr.classList.add('italic-row');
+
+    currentColumnOrder.forEach(col => {
+      let td;
+      if (col === PRODUCT_COL) {
+        td = createProductCell(row, isReference);
+      } else {
+        td = document.createElement('td');
+        td.textContent = row[col] || '';
+        if (TERPENE_COLS.includes(col) && String(row[col] || '').trim() === '% ?') {
+          td.title = 'Terpene listed without a reported percentage. An equal share of the reported total is used for ordering only.';
+        }
+        if (col >= TOTAL_COL && col < NOTES_COL) {
+          const background = cellBackground(col, row[col], isReference);
+          if (background) td.style.backgroundColor = background;
+        }
+      }
+      tr.appendChild(td);
+    });
+
+    tableBody.appendChild(tr);
+  });
+
+  requestAnimationFrame(updateStickyHeaderHeight);
+}
+
+function render() {
+  buildHeader();
+  renderBody();
+}
+
+function selectReference(productName) {
+  const reference = sourceRows.find(row => row[PRODUCT_COL] === productName);
+  if (!reference) return;
+
+  referenceProduct = productName;
+  sortState = {column: null, direction: null};
+  const profileCount = reportedTerpeneCount(reference);
+  currentColumnOrder = profileCount > 0 ? comparisonColumnOrder(reference) : [...originalColumnOrder];
+
+  const candidates = profileCount > 0
+    ? sourceRows
+        .filter(row => row[PRODUCT_COL] !== productName)
+        .map(row => ({row, details: similarityDetails(reference, row)}))
+        .sort((a, b) =>
+          a.details.tier - b.details.tier ||
+          a.details.distance - b.details.distance ||
+          b.details.shared - a.details.shared ||
+          a.row[PRODUCT_COL].localeCompare(b.row[PRODUCT_COL])
+        )
+        .map(item => item.row)
+    : sourceRows.filter(row => row[PRODUCT_COL] !== productName);
+
+  currentRows = [reference, ...candidates];
+  comparisonBar.classList.add('active');
+  clearComparison.hidden = false;
+
+  if (profileCount === 0) {
+    comparisonCopy.innerHTML = `<span class="no-profile"><strong>${escapeHtml(productName)}</strong> has no reported individual terpene values, so its profile cannot be used to order the other products.</span>`;
+  } else {
+    comparisonCopy.innerHTML = `<strong>Reference product: ${escapeHtml(productName)}.</strong> Its reported terpene columns are now arranged from highest to lowest. Rows below are ordered by the smallest proportional difference across terpene values reported for both products. For cells marked % ?, the reported total is divided equally between those listed terpenes for ordering only; % ? remains displayed. Comparisons sharing fewer than three usable values are placed after fuller comparisons.`;
+  }
+
+  tableShell.scrollTop = 0;
+  tableShell.scrollLeft = 0;
+  render();
+}
+
+function clearReference() {
+  referenceProduct = null;
+  currentRows = [...sourceRows];
+  currentColumnOrder = [...originalColumnOrder];
+  sortState = {column: null, direction: null};
+  comparisonBar.classList.remove('active');
+  clearComparison.hidden = true;
+  comparisonCopy.innerHTML = '<strong>Standard table.</strong> Click any product name to pin it as the reference product and arrange the other rows beneath it by profile shape.';
+  tableShell.scrollTop = 0;
+  tableShell.scrollLeft = 0;
+  render();
+}
+
+function sortColumn(col) {
+  const direction = sortState.column === col && sortState.direction === 'desc' ? 'asc' : 'desc';
+  sortState = {column: col, direction};
+
+  currentRows = [...sourceRows].sort((a, b) => {
+    const aNumber = TERPENE_COLS.includes(col) ? sortingValue(a, col) : numericValue(a[col]);
+    const bNumber = TERPENE_COLS.includes(col) ? sortingValue(b, col) : numericValue(b[col]);
+
+    if (aNumber !== null && bNumber !== null) {
+      return direction === 'desc' ? bNumber - aNumber : aNumber - bNumber;
+    }
+    if (aNumber !== null) return -1;
+    if (bNumber !== null) return 1;
+
+    const aText = (a[col] || '').trim();
+    const bText = (b[col] || '').trim();
+    if (aText && bText) return direction === 'desc' ? bText.localeCompare(aText) : aText.localeCompare(bText);
+    if (aText) return -1;
+    if (bText) return 1;
+    return 0;
+  });
+
+  render();
+}
+
+function updateStickyHeaderHeight() {
+  const height = document.querySelector('#spreadsheet thead')?.getBoundingClientRect().height || 40;
+  document.documentElement.style.setProperty('--header-height', `${height}px`);
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+clearComparison.addEventListener('click', clearReference);
+window.addEventListener('resize', updateStickyHeaderHeight);
+render();
+</script>
+</body>
+</html>
