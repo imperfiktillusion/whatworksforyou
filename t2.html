@@ -298,31 +298,36 @@ function normalisedReportedProfile(row) {
 }
 
 function similarityDetails(reference, candidate) {
-  const referenceProfile = normalisedReportedProfile(reference);
-  const candidateProfile = normalisedReportedProfile(candidate);
   const shared = TERPENE_COLS.filter(col =>
-    referenceProfile.has(col) && candidateProfile.has(col)
+    sortingValue(reference, col) !== null && sortingValue(candidate, col) !== null
   );
 
-  if (shared.length === 0) {
-    return {overlap: -1, difference: Infinity, shared: 0};
+  // A one- or two-value match is too thin to establish a useful profile shape.
+  // Keep those rows visible, but place them below comparisons based on at least
+  // three shared reported values.
+  if (shared.length < 3) {
+    return {shapeSimilarity: -1, shared: shared.length};
   }
 
-  // First express every presented value as its share of that product's full
-  // presented profile. Then total the visible overlap on columns where both
-  // products report a number. Blank cells provide no matching evidence, but
-  // are not assumed to contain zero.
-  const overlap = shared.reduce(
-    (sum, col) => sum + Math.min(referenceProfile.get(col), candidateProfile.get(col)),
-    0
-  );
+  // Cosine similarity compares the proportional shape of the shared presented
+  // values while ignoring overall strength. Blank cells remain not reported:
+  // they are neither treated as zero nor counted as matching values.
+  let dot = 0;
+  let referenceMagnitude = 0;
+  let candidateMagnitude = 0;
 
-  const difference = shared.reduce(
-    (sum, col) => sum + Math.abs(referenceProfile.get(col) - candidateProfile.get(col)),
-    0
-  );
+  shared.forEach(col => {
+    const referenceValue = sortingValue(reference, col);
+    const candidateValue = sortingValue(candidate, col);
+    dot += referenceValue * candidateValue;
+    referenceMagnitude += referenceValue * referenceValue;
+    candidateMagnitude += candidateValue * candidateValue;
+  });
 
-  return {overlap, difference, shared: shared.length};
+  const denominator = Math.sqrt(referenceMagnitude * candidateMagnitude);
+  const shapeSimilarity = denominator > 0 ? dot / denominator : -1;
+
+  return {shapeSimilarity, shared: shared.length};
 }
 
 function comparisonColumnOrder(reference) {
@@ -478,8 +483,7 @@ function selectReference(productName) {
         .filter(row => row[PRODUCT_COL] !== productName)
         .map(row => ({row, details: similarityDetails(reference, row)}))
         .sort((a, b) =>
-          b.details.overlap - a.details.overlap ||
-          a.details.difference - b.details.difference ||
+          b.details.shapeSimilarity - a.details.shapeSimilarity ||
           b.details.shared - a.details.shared ||
           a.row[PRODUCT_COL].localeCompare(b.row[PRODUCT_COL])
         )
@@ -493,7 +497,7 @@ function selectReference(productName) {
   if (profileCount === 0) {
     comparisonCopy.innerHTML = `<span class="no-profile"><strong>${escapeHtml(productName)}</strong> has no reported individual terpene values, so its profile cannot be used to order the other products.</span>`;
   } else {
-    comparisonCopy.innerHTML = `<strong>Reference product: ${escapeHtml(productName)}.</strong> Its reported terpene columns are arranged from highest to lowest. Rows below are ordered by the greatest visible overlap between each product’s complete presented terpene profile. Blank cells remain “not reported” and do not count as matching values. For cells marked % ?, the reported total is divided equally between those listed terpenes for ordering only; % ? remains displayed.`;
+    comparisonCopy.innerHTML = `<strong>Reference product: ${escapeHtml(productName)}.</strong> Its reported terpene columns are arranged from highest to lowest. Rows below are ordered by the closest proportional shape across terpene values reported for both products; overall terpene strength does not affect the order. At least three shared numeric terpene values are required for shape ordering, with thinner comparisons placed below. Blank cells remain “not reported”. For cells marked % ?, the reported total is divided equally between those listed terpenes for ordering only; % ? remains displayed.`;
   }
 
   tableShell.scrollTop = 0;
