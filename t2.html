@@ -211,7 +211,7 @@
 
 <div id="comparisonBar" class="comparison-bar">
   <div id="comparisonCopy" class="comparison-copy">
-    <strong>Standard table.</strong> Click any product name to pin it as the reference product and arrange the other rows beneath it by profile shape. Equivalent source labels are aligned into canonical display columns; hover a cell or header to see how it was interpreted.
+    <strong>Standard table.</strong> Click any product name to pin it as the reference product and arrange the other rows beneath it by full reported profile shape. Equivalent source labels are aligned into canonical display columns; hover a cell or header to see how it was interpreted.
   </div>
 </div>
 <button id="clearComparison" class="clear-button" type="button" hidden>Clear comparison</button>
@@ -529,44 +529,53 @@ function getCell(row, columnKey) {
   return result;
 }
 
-function comparisonDimensions(reference, candidate) {
-  const excluded = new Set(['total-pinene','alpha-pinene','beta-pinene']);
-  const dimensions = [];
+/*
+  Similarity uses one consistent profile vector for every product. There is no
+  pair-specific search for shared columns.
 
-  displayTerpeneColumns.forEach(column => {
-    if (excluded.has(column.key)) return;
-    const referenceValue = getCell(reference, column.key).sortValue;
-    const candidateValue = getCell(candidate, column.key).sortValue;
-    if (referenceValue !== null && candidateValue !== null) {
-      dimensions.push({key:column.key, referenceValue, candidateValue});
-    }
-  });
+  - Every canonical/passthrough terpene occupies the same position.
+  - A blank contributes no reported proportion in that position.
+  - Pinene is represented once as a family total for sorting: an explicit
+    Pinene/Total Pinene value where supplied, otherwise the sum of whichever
+    α- and/or β-Pinene values are available. The separate columns remain visible.
+  - Any reported Total % w/w not accounted for by the itemised values becomes
+    an internal "other/not itemised" component.
+  - The complete vector is converted to proportions, then compared by the sum
+    of absolute differences. Smaller distance means a closer reported shape.
+*/
+function comparisonDimensionKeys() {
+  return displayTerpeneColumns
+    .map(column => column.key)
+    .filter(key => key !== 'alpha-pinene' && key !== 'beta-pinene');
+}
 
-  const referenceAlpha = getCell(reference, 'alpha-pinene').sortValue;
-  const referenceBeta = getCell(reference, 'beta-pinene').sortValue;
-  const candidateAlpha = getCell(candidate, 'alpha-pinene').sortValue;
-  const candidateBeta = getCell(candidate, 'beta-pinene').sortValue;
-  const bothDetailed = referenceAlpha !== null && referenceBeta !== null && candidateAlpha !== null && candidateBeta !== null;
+function profileValue(row, key) {
+  if (key !== 'total-pinene') return getCell(row, key).sortValue ?? 0;
 
-  if (bothDetailed) {
-    dimensions.push({key:'alpha-pinene', referenceValue:referenceAlpha, candidateValue:candidateAlpha});
-    dimensions.push({key:'beta-pinene', referenceValue:referenceBeta, candidateValue:candidateBeta});
-  } else {
-    const referenceTotal = getCell(reference, 'total-pinene').sortValue;
-    const candidateTotal = getCell(candidate, 'total-pinene').sortValue;
-    if (referenceTotal !== null && candidateTotal !== null) {
-      dimensions.push({key:'total-pinene', referenceValue:referenceTotal, candidateValue:candidateTotal});
-    } else {
-      if (referenceAlpha !== null && candidateAlpha !== null) {
-        dimensions.push({key:'alpha-pinene', referenceValue:referenceAlpha, candidateValue:candidateAlpha});
-      }
-      if (referenceBeta !== null && candidateBeta !== null) {
-        dimensions.push({key:'beta-pinene', referenceValue:referenceBeta, candidateValue:candidateBeta});
-      }
-    }
+  const explicitOrDerived = getCell(row, 'total-pinene').sortValue;
+  if (explicitOrDerived !== null) return explicitOrDerived;
+
+  const alpha = getCell(row, 'alpha-pinene').sortValue ?? 0;
+  const beta = getCell(row, 'beta-pinene').sortValue ?? 0;
+  return alpha + beta;
+}
+
+function proportionalProfile(row) {
+  const keys = comparisonDimensionKeys();
+  const values = keys.map(key => profileValue(row, key));
+  const itemisedTotal = values.reduce((sum, value) => sum + value, 0);
+  const reportedTotal = getCell(row, 'total').sortValue;
+  const other = reportedTotal !== null ? Math.max(0, reportedTotal - itemisedTotal) : 0;
+  const profileTotal = itemisedTotal + other;
+
+  if (!(profileTotal > 0)) {
+    return {valid:false, proportions:new Map(), other:0, profileTotal:0};
   }
 
-  return dimensions;
+  const proportions = new Map();
+  keys.forEach((key, index) => proportions.set(key, values[index] / profileTotal));
+  proportions.set('__other__', other / profileTotal);
+  return {valid:true, proportions, other, profileTotal};
 }
 
 function reportedTerpeneCount(row) {
@@ -577,33 +586,27 @@ function reportedTerpeneCount(row) {
 }
 
 function similarityDetails(reference, candidate) {
-  const dimensions = comparisonDimensions(reference, candidate);
-  if (dimensions.length < 3) return {shapeSimilarity:-1, shared:dimensions.length};
+  const referenceProfile = proportionalProfile(reference);
+  const candidateProfile = proportionalProfile(candidate);
+  if (!referenceProfile.valid || !candidateProfile.valid) {
+    return {profileDistance:Number.POSITIVE_INFINITY};
+  }
 
-  let dot = 0;
-  let referenceMagnitude = 0;
-  let candidateMagnitude = 0;
-  dimensions.forEach(dimension => {
-    dot += dimension.referenceValue * dimension.candidateValue;
-    referenceMagnitude += dimension.referenceValue * dimension.referenceValue;
-    candidateMagnitude += dimension.candidateValue * dimension.candidateValue;
-  });
+  const keys = [...comparisonDimensionKeys(), '__other__'];
+  const profileDistance = keys.reduce((distance, key) => {
+    const referenceProportion = referenceProfile.proportions.get(key) || 0;
+    const candidateProportion = candidateProfile.proportions.get(key) || 0;
+    return distance + Math.abs(referenceProportion - candidateProportion);
+  }, 0);
 
-  const denominator = Math.sqrt(referenceMagnitude * candidateMagnitude);
-  return {
-    shapeSimilarity: denominator > 0 ? dot / denominator : -1,
-    shared:dimensions.length
-  };
+  return {profileDistance};
 }
 
 function comparisonColumnOrder(reference) {
   const productAndTotal = ['product','total'];
   const notes = ['notes'];
   const pineneKeys = ['total-pinene','alpha-pinene','beta-pinene'].filter(key => displayColumnMap.has(key));
-  const pineneValue = getCell(reference, 'total-pinene').sortValue ?? Math.max(
-    getCell(reference, 'alpha-pinene').sortValue ?? -1,
-    getCell(reference, 'beta-pinene').sortValue ?? -1
-  );
+  const pineneValue = profileValue(reference, 'total-pinene');
 
   const blocks = [];
   displayTerpeneColumns.forEach(column => {
@@ -764,8 +767,7 @@ function selectReference(productName) {
         .filter(row => getCell(row, 'product').display !== productName)
         .map(row => ({row, details:similarityDetails(reference, row)}))
         .sort((a, b) =>
-          b.details.shapeSimilarity - a.details.shapeSimilarity ||
-          b.details.shared - a.details.shared ||
+          a.details.profileDistance - b.details.profileDistance ||
           getCell(a.row, 'product').display.localeCompare(getCell(b.row, 'product').display)
         )
         .map(item => item.row)
@@ -778,7 +780,7 @@ function selectReference(productName) {
   if (profileCount === 0) {
     comparisonCopy.innerHTML = `<span class="no-profile"><strong>${escapeHtml(productName)}</strong> has no reported individual terpene values, so its profile cannot be used to order the other products.</span>`;
   } else {
-    comparisonCopy.innerHTML = `<strong>Reference product: ${escapeHtml(productName)}.</strong> Rows are ordered by proportional shape using terpene values reported for both products; overall terpene strength does not affect the order. Myrcene/β-Myrcene and β-/trans-Caryophyllene are aligned, while Limonene/d-Limonene share a comparison column without being added. α- and β-Pinene remain distinct; when one product reports only Pinene/Total Pinene, the comparison uses the total pinene family value instead. Σ identifies a displayed α + β total calculated from two reported values. Blank cells remain “not reported”. Values marked % ? are inferred only for ordering and remain displayed as % ?.`;
+    comparisonCopy.innerHTML = `<strong>Reference product: ${escapeHtml(productName)}.</strong> Every product is converted into the same complete proportional profile, then rows are ordered by the smallest total difference across that profile. Blank cells remain “not reported” in the table and contribute no reported proportion. Any part of the reported total not itemised in named terpene cells is retained internally as “other/not itemised”. Overall terpene strength does not affect the order. Myrcene/β-Myrcene and β-/trans-Caryophyllene are aligned, while Limonene/d-Limonene share a comparison column without being added. Pinene is compared as a family total while α- and β-Pinene remain separately visible. Σ identifies a displayed α + β total calculated from two reported values. Values marked % ? are inferred only for ordering and remain displayed as % ?.`;
   }
 
   tableShell.scrollTop = 0;
@@ -793,7 +795,7 @@ function clearReference() {
   sortState = {column:null, direction:null};
   comparisonBar.classList.remove('active');
   clearComparison.hidden = true;
-  comparisonCopy.innerHTML = '<strong>Standard table.</strong> Click any product name to pin it as the reference product and arrange the other rows beneath it by profile shape. Equivalent source labels are aligned into canonical display columns; hover a cell or header to see how it was interpreted.';
+  comparisonCopy.innerHTML = '<strong>Standard table.</strong> Click any product name to pin it as the reference product and arrange the other rows beneath it by full reported profile shape. Equivalent source labels are aligned into canonical display columns; hover a cell or header to see how it was interpreted.';
   tableShell.scrollTop = 0;
   tableShell.scrollLeft = 0;
   render();
