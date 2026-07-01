@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NZ Medical Cannabis Terpene Comparison — Clear Button Layout Prototype</title>
+<title>NZ Medical Cannabis Terpene Comparison Table</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -58,18 +58,25 @@
 
   .clear-button {
     display: block;
-    margin: 0 0 10px;
-    border: 1px solid #777;
-    border-radius: 3px;
+    width: fit-content;
+    margin: 0 0 7px;
+    border: 1px solid #bbb;
+    border-radius: 2px;
     background: #fff;
-    color: #111;
-    font: inherit;
-    font-weight: 500;
-    padding: 5px 9px;
+    color: #555;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 400;
+    line-height: 1.2;
+    padding: 2px 5px;
     cursor: pointer;
   }
 
-  .clear-button:hover { background: #f0f0f0; }
+  .clear-button:hover {
+    border-color: #888;
+    background: #f5f5f5;
+    color: #111;
+  }
   .clear-button[hidden] { display: none; }
 
   .table-shell {
@@ -202,12 +209,8 @@
 </head>
 <body>
 
-<h1>NZ Medical Cannabis Terpene Comparison — approx % w/w</h1>
-<h2>
-  Product data compiled from publicly available supplier product information sheets.<br>
-  Click column headers to sort the standard table. Click a product name to reorganise the table around its reported terpene profile.<br>
-  Where total-terpenes data was unavailable, values normalised to 1% w/w remain italicised. <strong>Total terpenes may represent more terpenes tested for rather than more terpenes present.</strong>
-</h2>
+<h1>NZ Medical Cannabis Terpene Comparison - approx % w/w</h1>
+<h2>List of products taken from the publically available <a href="https://www.health.govt.nz/regulation-legislation/medicinal-cannabis/information-for-health-professionals/minimum-quality-standard-medicinal-cannabis-products" style="text-decoration: underline;" target="_blank">Ministry of Health list of medicinal cannabis products that meet the minimum quality standard</a>.<br>Product data taken from crowd sourced supplier published product data information sheets.<br>Click column headers to sort. Where total terpenes data was unavailable terpene values have been normalised to 1% w/w (italicised).<br><b>Total terpenes may represent more terpenes tested for rather than more terpenes present.</b></h2>
 
 <div id="comparisonBar" class="comparison-bar">
   <div id="comparisonCopy" class="comparison-copy">
@@ -726,18 +729,25 @@ function renderBody() {
         td = createProductCell(row, isReference);
       } else {
         const cell = getCell(row, columnKey);
+        const isNormalisedRow = getCell(row, 'notes').display.toLowerCase().includes('normalised');
+        const showNormalisedTotal = isNormalisedRow && column.type === 'total';
         td = document.createElement('td');
-        td.textContent = cell.display;
-        if (cell.derived && cell.display) {
+        td.textContent = showNormalisedTotal ? 'Normalised' : cell.display;
+        if (cell.derived && cell.display && !showNormalisedTotal) {
           const mark = document.createElement('span');
           mark.className = 'derived-mark';
           mark.textContent = 'Σ';
           td.appendChild(mark);
         }
-        if (cell.title) td.title = cell.title;
-        if (column.type === 'total' || column.type === 'terpene') {
-          const background = cellBackground(column, cell, isReference);
-          if (background) td.style.backgroundColor = background;
+        if (showNormalisedTotal) {
+          td.title = `No reported total terpene value; profile normalised to ${cell.display || '1.000'}% w/w for comparison.`;
+          td.style.backgroundColor = isReference ? 'rgb(245, 230, 245)' : 'rgba(150, 0, 150, 0.1)';
+        } else {
+          if (cell.title) td.title = cell.title;
+          if (column.type === 'total' || column.type === 'terpene') {
+            const background = cellBackground(column, cell, isReference);
+            if (background) td.style.backgroundColor = background;
+          }
         }
       }
       tr.appendChild(td);
