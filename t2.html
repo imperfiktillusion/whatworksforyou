@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NZ Medical Cannabis Terpene Comparison — Canonical Profile Prototype</title>
+<title>NZ Medical Cannabis Terpene Comparison — Clear Button Layout Prototype</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -39,11 +39,8 @@
   a { color: inherit; }
 
   .comparison-bar {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 14px;
-    margin: 0 0 10px;
+    display: block;
+    margin: 0 0 6px;
     padding: 9px 11px;
     border: 1px solid #cfd5da;
     background: #f7f9fa;
@@ -60,7 +57,8 @@
   .comparison-copy strong { font-weight: 600; }
 
   .clear-button {
-    flex: 0 0 auto;
+    display: block;
+    margin: 0 0 10px;
     border: 1px solid #777;
     border-radius: 3px;
     background: #fff;
@@ -197,7 +195,6 @@
   @media (max-width: 700px) {
     body { padding: 10px; }
     .comparison-bar { display: block; }
-    .clear-button { margin-top: 8px; }
     .table-shell { max-height: calc(100vh - 240px); }
     th:first-child, td:first-child { min-width: 235px; max-width: 235px; }
   }
@@ -216,8 +213,8 @@
   <div id="comparisonCopy" class="comparison-copy">
     <strong>Standard table.</strong> Click any product name to pin it as the reference product and arrange the other rows beneath it by profile shape. Equivalent source labels are aligned into canonical display columns; hover a cell or header to see how it was interpreted.
   </div>
-  <button id="clearComparison" class="clear-button" type="button" hidden>Clear comparison</button>
 </div>
+<button id="clearComparison" class="clear-button" type="button" hidden>Clear comparison</button>
 
 <div id="tableShell" class="table-shell" tabindex="0" aria-label="Scrollable terpene comparison table">
   <table id="spreadsheet">
