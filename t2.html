@@ -272,34 +272,57 @@ function reportedTerpeneCount(row) {
   return TERPENE_COLS.reduce((count, col) => count + (sortingValue(row, col) !== null ? 1 : 0), 0);
 }
 
+const profileCache = new Map();
+
+function normalisedReportedProfile(row) {
+  if (profileCache.has(row)) return profileCache.get(row);
+
+  const values = new Map();
+  let sum = 0;
+
+  TERPENE_COLS.forEach(col => {
+    const value = sortingValue(row, col);
+    if (value !== null && value >= 0) {
+      values.set(col, value);
+      sum += value;
+    }
+  });
+
+  const profile = new Map();
+  if (sum > 0) {
+    values.forEach((value, col) => profile.set(col, value / sum));
+  }
+
+  profileCache.set(row, profile);
+  return profile;
+}
+
 function similarityDetails(reference, candidate) {
+  const referenceProfile = normalisedReportedProfile(reference);
+  const candidateProfile = normalisedReportedProfile(candidate);
   const shared = TERPENE_COLS.filter(col =>
-    sortingValue(reference, col) !== null && sortingValue(candidate, col) !== null
+    referenceProfile.has(col) && candidateProfile.has(col)
   );
 
   if (shared.length === 0) {
-    return {tier: 3, distance: Infinity, shared: 0};
+    return {overlap: -1, difference: Infinity, shared: 0};
   }
 
-  const refValues = shared.map(col => sortingValue(reference, col));
-  const candidateValues = shared.map(col => sortingValue(candidate, col));
-  const refSum = refValues.reduce((sum, value) => sum + value, 0);
-  const candidateSum = candidateValues.reduce((sum, value) => sum + value, 0);
+  // First express every presented value as its share of that product's full
+  // presented profile. Then total the visible overlap on columns where both
+  // products report a number. Blank cells provide no matching evidence, but
+  // are not assumed to contain zero.
+  const overlap = shared.reduce(
+    (sum, col) => sum + Math.min(referenceProfile.get(col), candidateProfile.get(col)),
+    0
+  );
 
-  if (refSum <= 0 || candidateSum <= 0) {
-    return {tier: 3, distance: Infinity, shared: shared.length};
-  }
+  const difference = shared.reduce(
+    (sum, col) => sum + Math.abs(referenceProfile.get(col) - candidateProfile.get(col)),
+    0
+  );
 
-  // Total-variation distance between the two proportional profiles,
-  // using only terpene values reported for both products.
-  const distance = 0.5 * shared.reduce((sum, col) => {
-    const refShare = sortingValue(reference, col) / refSum;
-    const candidateShare = sortingValue(candidate, col) / candidateSum;
-    return sum + Math.abs(refShare - candidateShare);
-  }, 0);
-
-  const tier = shared.length >= 3 ? 0 : shared.length === 2 ? 1 : 2;
-  return {tier, distance, shared: shared.length};
+  return {overlap, difference, shared: shared.length};
 }
 
 function comparisonColumnOrder(reference) {
@@ -455,8 +478,8 @@ function selectReference(productName) {
         .filter(row => row[PRODUCT_COL] !== productName)
         .map(row => ({row, details: similarityDetails(reference, row)}))
         .sort((a, b) =>
-          a.details.tier - b.details.tier ||
-          a.details.distance - b.details.distance ||
+          b.details.overlap - a.details.overlap ||
+          a.details.difference - b.details.difference ||
           b.details.shared - a.details.shared ||
           a.row[PRODUCT_COL].localeCompare(b.row[PRODUCT_COL])
         )
@@ -470,7 +493,7 @@ function selectReference(productName) {
   if (profileCount === 0) {
     comparisonCopy.innerHTML = `<span class="no-profile"><strong>${escapeHtml(productName)}</strong> has no reported individual terpene values, so its profile cannot be used to order the other products.</span>`;
   } else {
-    comparisonCopy.innerHTML = `<strong>Reference product: ${escapeHtml(productName)}.</strong> Its reported terpene columns are now arranged from highest to lowest. Rows below are ordered by the smallest proportional difference across terpene values reported for both products. For cells marked % ?, the reported total is divided equally between those listed terpenes for ordering only; % ? remains displayed. Comparisons sharing fewer than three usable values are placed after fuller comparisons.`;
+    comparisonCopy.innerHTML = `<strong>Reference product: ${escapeHtml(productName)}.</strong> Its reported terpene columns are arranged from highest to lowest. Rows below are ordered by the greatest visible overlap between each product’s complete presented terpene profile. Blank cells remain “not reported” and do not count as matching values. For cells marked % ?, the reported total is divided equally between those listed terpenes for ordering only; % ? remains displayed.`;
   }
 
   tableShell.scrollTop = 0;
